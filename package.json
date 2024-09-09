@@ -17,7 +17,7 @@
     "mongodb": "^6.8.0"
   },
   "scripts": {
-    "start": "bun run ./src/index.ts",
-    "dev": "bun run ./src/index.ts --watch"
+    "start:prod": "pm2 start pm2.config.cjs",
+    "start": "bun run ./src/index.ts"
   }
 }

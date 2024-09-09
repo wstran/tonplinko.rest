@@ -84,7 +84,7 @@ const server = Bun.serve({
     port: PORT,
     async fetch(req, server) {
         const rate_limit_response = rateLimitMiddleware(req);
-        console.log({ rate_limit_response });
+
         if (rate_limit_response) return rate_limit_response;
 
         if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: Headers });
