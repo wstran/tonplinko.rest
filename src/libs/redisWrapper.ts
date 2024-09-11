@@ -43,6 +43,10 @@ const get_all = async (key: string) => {
     return Object.entries(users).map(([key, value]) => ({ [key]: JSON.parse(value) }));
 }
 
+const has = async (key: string, field: string) => {
+    return (await redisClient.hexists(key, field)) === 1;
+}
+
 const get = async (key: string, field: string, returnType?: 'raw'): Promise<Record<string, any> | string | null> => {
     const data = await redisClient.hget(key, field);
 
@@ -50,11 +54,11 @@ const get = async (key: string, field: string, returnType?: 'raw'): Promise<Reco
 }
 
 const set = async (key: string, field: string, value: Record<string, any>) => {
-    await redisClient.hset(key, field, JSON.stringify(value));
+    return await redisClient.hset(key, field, JSON.stringify(value));
 }
 
 const del = async (key: string, field: string) => {
-    await redisClient.hdel(key, field);
+    return await redisClient.hdel(key, field);
 }
 
 const get_ttl = async (key: string) => {
@@ -64,7 +68,7 @@ const get_ttl = async (key: string) => {
 }
 
 const set_ttl = async (key: string, value: string, ttl: number) => {
-    await redisClient.set(key, value, 'EX', ttl);
+    return await redisClient.set(key, value, 'EX', ttl);
 }
 
 const has_ttl = async (key: string) => {
@@ -88,7 +92,7 @@ const list_get_all = async (key: string, returnType?: 'raw'): Promise<Record<str
 }
 
 const list_push = async (key: string, value: Record<string, any>) => {
-    await redisClient.lpush(key, JSON.stringify(value));
+    return await redisClient.lpush(key, JSON.stringify(value));
 }
 
 const list_assign = async (key: string, index: number, value: Record<string, any>[]) => {
@@ -96,6 +100,7 @@ const list_assign = async (key: string, index: number, value: Record<string, any
 
     if (get_data) {
         await redisClient.lset(key, index, JSON.stringify({ ...get_data, ...value }));
+        
         return true;
     };
 
@@ -103,7 +108,7 @@ const list_assign = async (key: string, index: number, value: Record<string, any
 }
 
 const list_clear = async (key: string) => {
-    await redisClient.ltrim(key, 1, 0);
+    return await redisClient.ltrim(key, 1, 0);
 }
 
-export default { transaction, lock, is_locked, await_unlock, unlock, get_all, get, set, del, get_ttl, set_ttl, has_ttl, del_ttl, list_get, list_get_all, list_push, list_assign, list_clear, redisClient };
+export default { transaction, lock, is_locked, await_unlock, unlock, get_all, has, get, set, del, get_ttl, set_ttl, has_ttl, del_ttl, list_get, list_get_all, list_push, list_assign, list_clear, redisClient };

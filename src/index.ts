@@ -119,6 +119,7 @@ const server = Bun.serve({
                     tele_id: '123456789',
                     name: 'Biki',
                     username: 'biki',
+                    balances: { tpp: 100000 },
                     auth_date: new Date(),
                 } as User;
 
