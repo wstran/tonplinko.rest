@@ -7,11 +7,11 @@ export default async (_: UserWithNonce, data: Record<string, any>, replyMessage:
     if (data.projection === '*') {
         const all_config = await redisWrapper.get_all('config');
 
-        for (const key in all_config) {
-            delete all_config[key]._id;
-        };
+        response_config = Object.values(all_config).reduce((acc, config) => {
+            delete config._id;
 
-        response_config = all_config;
+            return { ...acc, ...config };
+        }, {});
     } else {
         const porjections = data.projection.split(' ');
 
