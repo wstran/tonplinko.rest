@@ -74,7 +74,7 @@ import { rateLimitMiddleware, rateLimitWebSocket } from './libs/limitter';
 geoip.reloadDataSync();
 
 const Headers = {
-    'Access-Control-Allow-Origin': 'http://localhost:5001',
+    'Access-Control-Allow-Origin': 'http://localhost:5001 https://dapp.tonplinko.me',
     'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type, --webapp-init, --webapp-hash',
     'Access-Control-Max-Age': '86400',
