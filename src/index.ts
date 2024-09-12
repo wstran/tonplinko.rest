@@ -428,8 +428,6 @@ const server = Bun.serve({
 
                     const message = JSON.parse(encrypted_message /* decrypted */);
 
-                    const { sharedKey, signature } = ws_data;
-
                     actions[message.action]?.((ws.data as WS_DATA).user, message.data, (return_action: string, data: Record<string, any>) => {
 
                         /* const cipher = (crypto.createCipheriv as any)('aes-128-cbc', sharedKey, sharedKey);
