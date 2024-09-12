@@ -25,7 +25,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const now_date = new Date();
 
             const percent = Math.random() * 100;
-            let bin = 0;
+            let bin = 8;
             if (data.risk_level === 'HIGH') {
                 bin = percent > 70 ? generateRandomInt(5, 13) : generateRandomInt(7, 11);
             } else if (data.risk_level === 'MEDIUM') {
