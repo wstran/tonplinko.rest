@@ -95,7 +95,7 @@ const server = Bun.serve({
         if (server.upgrade(req, { data: { accessToken } })) return;
 
         if (req.method === 'POST' && new URL(req.url).pathname === '/api/auth') {
-            if (server.hostname === 'localhost' || Bun.env.NODE_ENV === 'development') {
+            if (Bun.env.NODE_ENV) {
                 let clientIp = '8.8.8.8';
 
                 if (Array.isArray(clientIp)) clientIp = clientIp[0] as string;
