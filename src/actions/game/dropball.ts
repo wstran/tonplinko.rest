@@ -25,9 +25,14 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const now_date = new Date();
 
             const percent = Math.random() * 100;
-
-            const bin = percent > 70 ? generateRandomInt(4, 12) : generateRandomInt(7, 11);
-
+            let bin = 0;
+            if (data.risk_level === 'HIGH') {
+                bin = percent > 70 ? generateRandomInt(5, 13) : generateRandomInt(7, 11);
+            } else if (data.risk_level === 'MEDIUM') {
+                bin = percent > 70 ? generateRandomInt(4, 8) : generateRandomInt(5, 6);
+            } else if (data.risk_level === 'LOW') {
+                bin = percent > 70 ? generateRandomInt(4, 11) : generateRandomInt(6, 8);
+            };
             // const seed_test = Math.random() * 45 + 360;
 
             const ball_seed = Math.random() || binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
