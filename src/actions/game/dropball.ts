@@ -27,11 +27,11 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const percent = Math.random() * 100;
             let bin = 8;
             if (data.risk_level === 'HIGH') {
-                bin = percent > 70 ? generateRandomInt(5, 13) : generateRandomInt(7, 11);
+                bin = percent < 30 ? generateRandomInt(5, 13) : generateRandomInt(6, 12);
             } else if (data.risk_level === 'MEDIUM') {
-                bin = percent > 70 ? generateRandomInt(4, 8) : generateRandomInt(5, 6);
+                bin = percent < 30 ? generateRandomInt(4, 8) : generateRandomInt(5, 7);
             } else if (data.risk_level === 'LOW') {
-                bin = percent > 70 ? generateRandomInt(4, 11) : generateRandomInt(6, 8);
+                bin = percent < 30 ? generateRandomInt(4, 11) : generateRandomInt(5, 10);
             };
             // const seed_test = Math.random() * 45 + 360;
 
