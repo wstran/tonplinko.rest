@@ -24,7 +24,8 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const now_date = new Date();
 
-            const bin = generateRandomInt(6, 8);
+
+            const bin = generateRandomInt(2, 14);
 
             // create a random 360 > 405 seed
             const seed_test = Math.random() * 45 + 360;
@@ -43,7 +44,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             if (seted === false) return;
 
-            replyMessage(data.return_action, { ball_seed:seed_test, ball_id, ball_price: data.ball_price });
+            replyMessage(data.return_action, { ball_seed, ball_id, ball_price: data.ball_price });
         });
         
         if (exists === false) replyMessage('receiver_action_data', { action: 'reload' });
