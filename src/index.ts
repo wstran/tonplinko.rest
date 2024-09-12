@@ -1,11 +1,12 @@
-const { PORT, REDIS_URL, TELEGRAM_BOT_TOKEN, ROOT_SECRET, SERVER_SECRET } = Bun.env;
+const { PORT, REDIS_URL, TELEGRAM_BOT_TOKEN, ROOT_SECRET, SERVER_SECRET, SERVER_DOMAIN } = Bun.env;
 
 if (
     !PORT ||
     !REDIS_URL ||
     !TELEGRAM_BOT_TOKEN ||
     !ROOT_SECRET ||
-    !SERVER_SECRET
+    !SERVER_SECRET ||
+    !SERVER_DOMAIN
 ) {
     throw new Error('Environment variables are not set.');
 };
@@ -74,7 +75,7 @@ import { rateLimitMiddleware, rateLimitWebSocket } from './libs/limitter';
 geoip.reloadDataSync();
 
 const Headers = {
-    'Access-Control-Allow-Origin': Bun.env.NODE_ENV === 'production' ? 'https://dapp.tonplinko.me' : 'http://localhost:5001',
+    'Access-Control-Allow-Origin': Bun.env.NODE_ENV === 'production' ? SERVER_DOMAIN : 'http://localhost:5001',
     'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type, --webapp-init, --webapp-hash',
     'Access-Control-Max-Age': '86400',
