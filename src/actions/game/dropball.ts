@@ -24,7 +24,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const now_date = new Date();
 
-            const bin = generateRandomInt(4, 8);
+            const bin = generateRandomInt(6, 8);
 
             const ball_seed = binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
             
