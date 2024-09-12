@@ -416,7 +416,7 @@ const server = Bun.serve({
                 return;
             };
 
-            if (ws_data.sharedKey && ws_message.startsWith('m:::::')) {
+            if (ws_data.sharedKey && ws_message.startsWith('m::::')) {
                 const [_, signature, encrypted_message] = ws_message.split('::::');
 
                 if (signature !== ws_data.signature) return ws.close(4004, 'Unauthorized');
