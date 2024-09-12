@@ -27,13 +27,13 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const percent = Math.random() * 100;
             let bin = 8;
             if (data.risk_level === 'HIGH') {
-                bin = generateRandomInt(6, 12);
+                bin = generateRandomInt(4, 12);
             } else if (data.risk_level === 'MEDIUM') {
-                bin = generateRandomInt(5, 7);
-            } else if (data.risk_level === 'LOW') {
                 bin = generateRandomInt(5, 10);
+            } else if (data.risk_level === 'LOW') {
+                bin = generateRandomInt(6, 11);
             };
-            
+
             // const seed_test = Math.random() * 45 + 360;
 
             const ball_seed = binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
