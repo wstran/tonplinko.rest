@@ -502,7 +502,8 @@ const server = Bun.serve({
                         `lock:locations:${tele_id}`,
                         `lock:nonces:${tele_id}`
                     ], 15, async () => {
-                        if (Bun.env.NODE_ENV === 'development') {
+                        // DEV
+                        if (Bun.env.NODE_ENV) {
                             await Promise.all([
                                 redisWrapper.del('users', tele_id),
                                 redisWrapper.del('locations', tele_id),
