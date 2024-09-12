@@ -425,7 +425,7 @@ const server = Bun.serve({
                     /* const decipher = (crypto.createDecipheriv as any)('aes-128-cbc', ws_data.sharedKey, ws_data.sharedKey);
 
                     const decrypted = [decipher.update(encrypted_message, 'base64', 'utf8'), decipher.final('utf8')].join(''); */
-
+                    console.log({ encrypted_message })
                     const message = JSON.parse(encrypted_message /* decrypted */);
 
                     actions[message.action]?.((ws.data as WS_DATA).user, message.data, (return_action: string, data: Record<string, any>) => {
