@@ -25,6 +25,6 @@ export default async (_: UserWithNonce, data: Record<string, any>, replyMessage:
             response_config[projection] = config;
         };
     };
-
+    console.log('replyMessage:', data.return_action, response_config);
     replyMessage(data.return_action, response_config);
 }
