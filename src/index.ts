@@ -422,21 +422,21 @@ const server = Bun.serve({
                 if (signature !== ws_data.signature) return ws.close(4004, 'Unauthorized');
 
                 try {
-                    const decipher = (crypto.createDecipheriv as any)('aes-128-cbc', ws_data.sharedKey, ws_data.sharedKey);
+                    /* const decipher = (crypto.createDecipheriv as any)('aes-128-cbc', ws_data.sharedKey, ws_data.sharedKey);
 
-                    const decrypted = [decipher.update(encrypted_message, 'base64', 'utf8'), decipher.final('utf8')].join('');
+                    const decrypted = [decipher.update(encrypted_message, 'base64', 'utf8'), decipher.final('utf8')].join(''); */
 
-                    const message = JSON.parse(decrypted);
+                    const message = JSON.parse(encrypted_message /* decrypted */);
 
                     const { sharedKey, signature } = ws_data;
 
                     actions[message.action]?.((ws.data as WS_DATA).user, message.data, (return_action: string, data: Record<string, any>) => {
 
-                        const cipher = (crypto.createCipheriv as any)('aes-128-cbc', sharedKey, sharedKey);
+                        /* const cipher = (crypto.createCipheriv as any)('aes-128-cbc', sharedKey, sharedKey);
 
-                        let encrypted = [cipher.update(JSON.stringify({ return_action, data }), 'utf8', 'base64'), cipher.final('base64')].join('');
+                        let encrypted = [cipher.update(JSON.stringify({ return_action, data }), 'utf8', 'base64'), cipher.final('base64')].join(''); */
 
-                        ws.send(`m:${signature}:${encrypted}`);
+                        ws.send(`m:${signature}:${JSON.stringify({ return_action, data }) /*|| encrypted */}`);
                     });
                 } catch (error) {
                     console.error(error);
