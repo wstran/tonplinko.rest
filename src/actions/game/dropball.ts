@@ -26,7 +26,10 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const bin = generateRandomInt(6, 8);
 
-            const ball_seed = binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
+            // create a random 360 > 405 seed
+            const seed_test = Math.random() * 45 + 360;
+
+            const ball_seed = Math.random() || binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
             
             const ball_id = new Bun.MD5().update(`${user.tele_id}${now_date.getTime()}${bin}${ball_seed}${Math.random()}`).digest('hex');
 
@@ -40,7 +43,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             if (seted === false) return;
 
-            replyMessage(data.return_action, { ball_seed, ball_id, ball_price: data.ball_price });
+            replyMessage(data.return_action, { ball_seed:seed_test, ball_id, ball_price: data.ball_price });
         });
         
         if (exists === false) replyMessage('receiver_action_data', { action: 'reload' });
