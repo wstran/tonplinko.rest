@@ -24,11 +24,11 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const now_date = new Date();
 
+            const percent = Math.random() * 100;
 
-            const bin = generateRandomInt(2, 14);
+            const bin = percent > 70 ? generateRandomInt(4, 12) : generateRandomInt(7, 11);
 
-            // create a random 360 > 405 seed
-            const seed_test = Math.random() * 45 + 360;
+            // const seed_test = Math.random() * 45 + 360;
 
             const ball_seed = Math.random() || binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
             
