@@ -35,7 +35,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             };
             // const seed_test = Math.random() * 45 + 360;
 
-            const ball_seed = Math.random() || binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
+            const ball_seed = binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
             
             const ball_id = new Bun.MD5().update(`${user.tele_id}${now_date.getTime()}${bin}${ball_seed}${Math.random()}`).digest('hex');
 
