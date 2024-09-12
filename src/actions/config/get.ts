@@ -8,9 +8,11 @@ export default async (_: UserWithNonce, data: Record<string, any>, replyMessage:
         const all_config = await redisWrapper.get_all('config');
 
         response_config = Object.values(all_config).reduce((acc, config) => {
-            delete config._id;
+            const _config = config;
 
-            return { ...acc, ...config };
+            delete _config._id;
+
+            return { ...acc, ..._config };
         }, {});
     } else {
         const porjections = data.projection.split(' ');
