@@ -194,7 +194,7 @@ const server = Bun.serve({
 
             const data_check_string = Array.from(params.entries()).sort().map(e => `${e[0]}=${e[1]}`).join('\n');
 
-            const hmac = createHmac("sha256", secret_key.toString('hex')).update(data_check_string).digest("hex");
+            const hmac = createHmac("sha256", secret_key as any).update(data_check_string).digest("hex");
             console.log({ hmac, hash, params, TELEGRAM_BOT_TOKEN });
             if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers: Headers });
 
