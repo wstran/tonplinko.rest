@@ -95,8 +95,7 @@ const server = Bun.serve({
         if (server.upgrade(req, { data: { accessToken } })) return;
 
         if (req.method === 'POST' && new URL(req.url).pathname === '/api/auth') {
-            // DEV
-            if (Bun.env.NODE_ENV) {
+            if (Bun.env.NODE_ENV === 'development') {
                 let clientIp = '8.8.8.8';
 
                 if (Array.isArray(clientIp)) clientIp = clientIp[0] as string;
@@ -386,7 +385,7 @@ const server = Bun.serve({
             if (ws.readyState !== WebSocket.OPEN) return;
 
             const ws_data = ws.data as WS_DATA;
-            
+
             const rate_limit_socket = rateLimitWebSocket(ws, ws_data.clientIp as string);
 
             if (ws_data.clientIp && rate_limit_socket) return;
@@ -422,19 +421,21 @@ const server = Bun.serve({
                 if (signature !== ws_data.signature) return ws.close(4004, 'Unauthorized');
 
                 try {
-                    /* const decipher = (crypto.createDecipheriv as any)('aes-128-cbc', ws_data.sharedKey, ws_data.sharedKey);
+                    const decipher = (crypto.createDecipheriv as any)('aes-128-cbc', ws_data.sharedKey, ws_data.sharedKey);
 
-                    const decrypted = [decipher.update(encrypted_message, 'base64', 'utf8'), decipher.final('utf8')].join(''); */
-                    console.log({ encrypted_message })
-                    const message = JSON.parse(encrypted_message /* decrypted */);
+                    const decrypted = [decipher.update(encrypted_message, 'base64', 'utf8'), decipher.final('utf8')].join('');
+
+                    const message = JSON.parse(decrypted);
+
+                    const sharedKey = ws_data.sharedKey;
 
                     actions[message.action]?.((ws.data as WS_DATA).user, message.data, (return_action: string, data: Record<string, any>) => {
 
-                        /* const cipher = (crypto.createCipheriv as any)('aes-128-cbc', sharedKey, sharedKey);
+                        const cipher = (crypto.createCipheriv as any)('aes-128-cbc', sharedKey, sharedKey);
 
-                        let encrypted = [cipher.update(JSON.stringify({ return_action, data }), 'utf8', 'base64'), cipher.final('base64')].join(''); */
+                        let encrypted = [cipher.update(JSON.stringify({ return_action, data }), 'utf8', 'base64'), cipher.final('base64')].join('');
 
-                        ws.send(`m::::${signature}::::${JSON.stringify({ return_action, data }) /*|| encrypted */}`);
+                        ws.send(`m::::${signature}::::${JSON.stringify(encrypted)}`);
                     });
                 } catch (error) {
                     console.error(error);
@@ -500,8 +501,7 @@ const server = Bun.serve({
                         `lock:locations:${tele_id}`,
                         `lock:nonces:${tele_id}`
                     ], 15, async () => {
-                        // DEV
-                        if (Bun.env.NODE_ENV) {
+                        if (Bun.env.NODE_ENV === 'development') {
                             await Promise.all([
                                 redisWrapper.del('users', tele_id),
                                 redisWrapper.del('locations', tele_id),
