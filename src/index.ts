@@ -103,9 +103,9 @@ const server = Bun.serve({
                 if (clientIp.includes(',')) clientIp = clientIp.split(', ')[0];
 
                 const lookup = geoip.lookup(clientIp);
-                console.log('0');
+
                 if (lookup === null) return new Response('Bad request.', { status: 400, headers: Headers });
-                console.log('1');
+
                 const formattedLocation: Location = {
                     ip_address: clientIp,
                     country_code: lookup.country,
@@ -163,15 +163,15 @@ const server = Bun.serve({
             const [webapp_init, webapp_hash] = [req.headers.get('--webapp-init'), req.headers.get('--webapp-hash')];
 
             if (typeof webapp_init !== 'string' || typeof webapp_hash !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('2');
+
             const [timestamp, request_hash] = webapp_hash.split(':');
 
             if (typeof timestamp !== 'string' || typeof request_hash !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('3');
+
             const now_date = new Date();
 
             if (Number(timestamp) + 4000 < now_date.getTime()) return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('4');
+
             let dataToSign = `timestamp=${timestamp}&initData=${webapp_init}`;
 
             if (req.body !== null) {
@@ -181,9 +181,9 @@ const server = Bun.serve({
             };
 
             const server_signature = new Bun.MD5().update(Bun.env.ROOT_SECRET + dataToSign).digest('hex');
-            console.log({ server_signature, request_hash, webapp_hash, dataToSign });
+
             if (server_signature !== request_hash) return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('5');
+
             const params = new URLSearchParams(decodeURIComponent(webapp_init));
 
             const hash = params.get('hash');
@@ -195,7 +195,7 @@ const server = Bun.serve({
             const data_check_string = Array.from(params.entries()).sort().map(e => `${e[0]}=${e[1]}`).join('\n');
 
             const hmac = createHmac("sha256", data_check_string).update(secret_key).digest("hex");
-
+            console.log({ hmac, hash });
             if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers: Headers });
 
             const user_param = params.get('user');
