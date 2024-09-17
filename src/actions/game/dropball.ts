@@ -35,10 +35,8 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                 bin = percent > 1 ? generateRandomInt(7, 10) : generateRandomInt(1, 15);
             };
 
-            // const seed_test = Math.random() * 45 + 360;
-
             const ball_seed = binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
-            
+
             const ball_id = new Bun.MD5().update(`${user.tele_id}${now_date.getTime()}${bin}${ball_seed}${Math.random()}`).digest('hex');
 
             const bin_risk = await getBinRisk(data.row, data.risk_level, bin);
@@ -53,7 +51,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             replyMessage(data.return_action, { ball_seed, ball_id, ball_price: data.ball_price });
         });
-        
+
         if (exists === false) replyMessage('receiver_action_data', { action: 'reload' });
     } catch (error) {
         console.error(error);
