@@ -343,7 +343,7 @@ const server = Bun.serve({
                             const update_location_result = await locationCollection.updateOne(
                                 {
                                     tele_id,
-                                    ip_address: clientIp
+                                    ip_address: clientIp,
                                 },
                                 {
                                     $set: { ...formattedLocation, last_active_at: now_date },
