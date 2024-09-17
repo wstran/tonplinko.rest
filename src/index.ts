@@ -75,13 +75,13 @@ import { rateLimitMiddleware, rateLimitWebSocket } from './libs/limitter';
 
 geoip.reloadDataSync();
 
-const headers = new Headers({
+const headers = {
     'Access-Control-Allow-Origin': Bun.env.NODE_ENV === 'production' ? SERVER_DOMAIN : 'http://localhost:5001',
     'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type, --webapp-init, --webapp-hash',
     'Access-Control-Max-Age': '86400',
     'Content-Type': 'application/json',
-});
+};
 
 const server = Bun.serve({
     port: PORT,
@@ -281,7 +281,7 @@ const server = Bun.serve({
                         return new Response('Internal server error.', { status: 500 });
                     };
 
-                    return new Response(JSON.stringify({ token }), { status: 200, headers });
+                    return new Response(`{"token":"${token}"}`, { status: 200, headers });
                 } else {
                     const dbInstance = Database.getInstance();
                     const db = await dbInstance.getDb();
