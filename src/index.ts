@@ -415,8 +415,8 @@ const server = Bun.serve({
                 return;
             };
 
-            if (ws_data.sharedKey && ws_message.startsWith('m::::')) {
-                const [_, signature, encrypted_message] = ws_message.split('::::');
+            if (ws_data.sharedKey && ws_message.startsWith('m:')) {
+                const [_, signature, encrypted_message] = ws_message.split(':');
 
                 if (signature !== ws_data.signature) return ws.close(4004, 'Unauthorized');
 
@@ -435,7 +435,7 @@ const server = Bun.serve({
 
                         let encrypted = [cipher.update(JSON.stringify({ return_action, data }), 'utf8', 'base64'), cipher.final('base64')].join('');
 
-                        ws.send(`m::::${signature}::::${JSON.stringify(encrypted)}`);
+                        ws.send(`m:${signature}:${JSON.stringify(encrypted)}`);
                     });
                 } catch (error) {
                     console.error(error);
