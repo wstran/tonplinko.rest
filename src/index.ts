@@ -190,12 +190,12 @@ const server = Bun.serve({
 
             params.delete('hash');
 
-            const secret_key = createHmac("sha256", TELEGRAM_BOT_TOKEN as crypto.BinaryLike).update("WebAppData").digest() as unknown as crypto.BinaryLike;
+            const secret_key = createHmac("sha256", TELEGRAM_BOT_TOKEN).update("WebAppData").digest();
 
             const data_check_string = Array.from(params.entries()).sort().map(e => `${e[0]}=${e[1]}`).join('\n');
 
-            const hmac = createHmac("sha256", secret_key).update(data_check_string).digest("hex");
-            console.log({ hmac, hash, params });
+            const hmac = createHmac("sha256", secret_key.toString('hex')).update(data_check_string).digest("hex");
+            console.log({ hmac, hash, params, TELEGRAM_BOT_TOKEN });
             if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers: Headers });
 
             const user_param = params.get('user');
