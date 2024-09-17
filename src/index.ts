@@ -260,10 +260,6 @@ const server = Bun.serve({
                         }
                     );
 
-                    
-                    const previous_ip = user_data.ip_location?.ip_address;
-                    console.log({ response_user, previous_ip })
-
                     try {
                         await Promise.all([
                             redisWrapper.set('users', tele_id, response_user),
@@ -273,7 +269,6 @@ const server = Bun.serve({
                                     tele_id,
                                     ...formattedLocation,
                                     last_active_at: now_date,
-                                    ...(previous_ip !== clientIp && { previous_ip })
                                 }
                             ]),
                             redisWrapper.set_ttl(`nonces:${user.tele_id}`, nonce, 60 * 60)
@@ -345,13 +340,10 @@ const server = Bun.serve({
                                 }
                             );
 
-                            const previous_ip = update_user_result?.ip_location?.ip_address;
-
                             const update_location_result = await locationCollection.updateOne(
                                 {
                                     tele_id,
-                                    ip_address: clientIp,
-                                    ...(previous_ip !== clientIp && { previous_ip })
+                                    ip_address: clientIp
                                 },
                                 {
                                     $set: { ...formattedLocation, last_active_at: now_date },
