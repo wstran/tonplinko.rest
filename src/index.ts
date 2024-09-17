@@ -520,7 +520,7 @@ const server = Bun.serve({
 
                                 const now_date = new Date();
 
-                                const locationBulks = locations.map((location: Location) => ({
+                                const locationBulks = locations?.map((location: Location) => ({
                                     updateOne: {
                                         filter: { tele_id, ip_address: location.ip_address },
                                         update: { $set: { ...location, last_active_at: now_date } },
@@ -536,7 +536,7 @@ const server = Bun.serve({
                                     locationCollection.bulkWrite(locationBulks, { session }),
                                 ]);
 
-                                if (update_user_result.acknowledged !== true || update_location_result.isOk() !== true) {
+                                if (update_user_result.acknowledged !== true || (locationBulks.length > 0 && update_location_result.isOk() !== true)) {
                                     throw new Error('Transaction failed to commit.');
                                 };
 
