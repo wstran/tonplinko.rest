@@ -204,11 +204,11 @@ const server = Bun.serve({
             const auth_date = Number(params.get('auth_date')) * 1000;
 
             if (typeof user_param !== 'string' || isNaN(auth_date)) return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('6');
+
             let clientIp = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || req.headers.get('remote-address');
 
             if (typeof clientIp !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('7');
+
             if (Array.isArray(clientIp)) clientIp = clientIp[0] as string;
 
             if (clientIp.includes(',')) clientIp = clientIp.split(', ')[0];
@@ -216,7 +216,7 @@ const server = Bun.serve({
             const lookup = geoip.lookup(clientIp);
 
             if (lookup === null) return new Response('Bad request.', { status: 400, headers: Headers });
-            console.log('8');
+
             const formattedLocation: Location = {
                 ip_address: clientIp,
                 country_code: lookup.country,
@@ -265,7 +265,7 @@ const server = Bun.serve({
                         await Promise.all([
                             redisWrapper.set('users', tele_id, response_user),
                             redisWrapper.set('locations', tele_id, [
-                                ...(await redisWrapper.get('locations', tele_id) as []),
+                                ...(await redisWrapper.get('locations', tele_id) as [] || []),
                                 {
                                     tele_id,
                                     ...formattedLocation,
