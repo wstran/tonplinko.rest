@@ -174,9 +174,11 @@ const server = Bun.serve({
             console.log('4');
             let dataToSign = `timestamp=${timestamp}&initData=${webapp_init}`;
 
-            const data = JSON.stringify(req.body);
+            if (req.body !== null) {
+                const data = JSON.stringify(req.body);
 
-            dataToSign += `&data=${data}`;
+                dataToSign += `&data=${data}`;
+            };
 
             const server_signature = new Bun.MD5().update(Bun.env.ROOT_SECRET + dataToSign).digest('hex');
             console.log({ server_signature, request_hash, webapp_hash, dataToSign });
