@@ -103,9 +103,9 @@ const server = Bun.serve({
                 if (clientIp.includes(',')) clientIp = clientIp.split(', ')[0];
 
                 const lookup = geoip.lookup(clientIp);
-
+                console.log('0');
                 if (lookup === null) return new Response('Bad request.', { status: 400, headers: Headers });
-
+                console.log('1');
                 const formattedLocation: Location = {
                     ip_address: clientIp,
                     country_code: lookup.country,
@@ -163,15 +163,15 @@ const server = Bun.serve({
             const [webapp_init, webapp_hash] = [req.headers.get('--webapp-init'), req.headers.get('--webapp-hash')];
 
             if (typeof webapp_init !== 'string' || typeof webapp_hash !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('2');
             const [timestamp, request_hash] = webapp_hash.split(':');
 
             if (typeof timestamp !== 'string' || typeof request_hash !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('3');
             const now_date = new Date();
 
             if (Number(timestamp) + 4000 < now_date.getTime()) return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('4');
             let dataToSign = `timestamp=${timestamp}&initData=${webapp_init}`;
 
             const data = JSON.stringify(req.body);
@@ -181,7 +181,7 @@ const server = Bun.serve({
             const server_signature = new Bun.MD5().update(Bun.env.ROOT_SECRET + dataToSign).digest('hex');
 
             if (server_signature !== request_hash) return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('5');
             const params = new URLSearchParams(decodeURIComponent(webapp_init));
 
             const hash = params.get('hash');
@@ -201,11 +201,11 @@ const server = Bun.serve({
             const auth_date = Number(params.get('auth_date')) * 1000;
 
             if (typeof user_param !== 'string' || isNaN(auth_date)) return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('6');
             let clientIp = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || req.headers.get('remote-address');
 
             if (typeof clientIp !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('7');
             if (Array.isArray(clientIp)) clientIp = clientIp[0] as string;
 
             if (clientIp.includes(',')) clientIp = clientIp.split(', ')[0];
@@ -213,7 +213,7 @@ const server = Bun.serve({
             const lookup = geoip.lookup(clientIp);
 
             if (lookup === null) return new Response('Bad request.', { status: 400, headers: Headers });
-
+            console.log('8');
             const formattedLocation: Location = {
                 ip_address: clientIp,
                 country_code: lookup.country,
