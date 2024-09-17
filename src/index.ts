@@ -260,7 +260,9 @@ const server = Bun.serve({
                         }
                     );
 
+                    
                     const previous_ip = user_data.ip_location?.ip_address;
+                    console.log({ response_user, previous_ip })
 
                     try {
                         await Promise.all([
