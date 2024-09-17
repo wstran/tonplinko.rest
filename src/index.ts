@@ -75,13 +75,13 @@ import { rateLimitMiddleware, rateLimitWebSocket } from './libs/limitter';
 
 geoip.reloadDataSync();
 
-const Headers = {
+const headers = new Headers({
     'Access-Control-Allow-Origin': Bun.env.NODE_ENV === 'production' ? SERVER_DOMAIN : 'http://localhost:5001',
     'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type, --webapp-init, --webapp-hash',
     'Access-Control-Max-Age': '86400',
     'Content-Type': 'application/json',
-};
+});
 
 const server = Bun.serve({
     port: PORT,
@@ -90,7 +90,7 @@ const server = Bun.serve({
 
         if (rate_limit_response) return rate_limit_response;
 
-        if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: Headers });
+        if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers });
 
         const accessToken = new URL(req.url).searchParams.get('accessToken');
 
@@ -106,7 +106,7 @@ const server = Bun.serve({
 
                 const lookup = geoip.lookup(clientIp);
 
-                if (lookup === null) return new Response('Bad request.', { status: 400, headers: Headers });
+                if (lookup === null) return new Response('Bad request.', { status: 400, headers });
 
                 const formattedLocation: Location = {
                     ip_address: clientIp,
@@ -159,20 +159,20 @@ const server = Bun.serve({
                     return new Response('Internal server error.', { status: 500 });
                 };
 
-                return new Response(JSON.stringify({ token }), { status: 200, headers: Headers });
+                return new Response(JSON.stringify({ token }), { status: 200, headers });
             };
 
             const [webapp_init, webapp_hash] = [req.headers.get('--webapp-init'), req.headers.get('--webapp-hash')];
 
-            if (typeof webapp_init !== 'string' || typeof webapp_hash !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
+            if (typeof webapp_init !== 'string' || typeof webapp_hash !== 'string') return new Response('Bad request.', { status: 400, headers });
 
             const [timestamp, request_hash] = webapp_hash.split(':');
 
-            if (typeof timestamp !== 'string' || typeof request_hash !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
+            if (typeof timestamp !== 'string' || typeof request_hash !== 'string') return new Response('Bad request.', { status: 400, headers });
 
             const now_date = new Date();
 
-            if (Number(timestamp) + 4000 < now_date.getTime()) return new Response('Bad request.', { status: 400, headers: Headers });
+            if (Number(timestamp) + 4000 < now_date.getTime()) return new Response('Bad request.', { status: 400, headers });
 
             let dataToSign = `timestamp=${timestamp}&initData=${webapp_init}`;
 
@@ -184,7 +184,7 @@ const server = Bun.serve({
 
             const server_signature = new Bun.MD5().update(Bun.env.ROOT_SECRET + dataToSign).digest('hex');
 
-            if (server_signature !== request_hash) return new Response('Bad request.', { status: 400, headers: Headers });
+            if (server_signature !== request_hash) return new Response('Bad request.', { status: 400, headers });
 
             const params = new URLSearchParams(decodeURIComponent(webapp_init));
 
@@ -198,17 +198,17 @@ const server = Bun.serve({
 
             const hmac = CryptoJS.HmacSHA256(data_check_string, secret_key).toString(CryptoJS.enc.Hex);
 
-            if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers: Headers });
+            if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers });
 
             const user_param = params.get('user');
 
             const auth_date = Number(params.get('auth_date')) * 1000;
 
-            if (typeof user_param !== 'string' || isNaN(auth_date)) return new Response('Bad request.', { status: 400, headers: Headers });
+            if (typeof user_param !== 'string' || isNaN(auth_date)) return new Response('Bad request.', { status: 400, headers });
 
             let clientIp = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || req.headers.get('remote-address');
 
-            if (typeof clientIp !== 'string') return new Response('Bad request.', { status: 400, headers: Headers });
+            if (typeof clientIp !== 'string') return new Response('Bad request.', { status: 400, headers });
 
             if (Array.isArray(clientIp)) clientIp = clientIp[0] as string;
 
@@ -216,7 +216,7 @@ const server = Bun.serve({
 
             const lookup = geoip.lookup(clientIp);
 
-            if (lookup === null) return new Response('Bad request.', { status: 400, headers: Headers });
+            if (lookup === null) return new Response('Bad request.', { status: 400, headers });
 
             const formattedLocation: Location = {
                 ip_address: clientIp,
@@ -281,7 +281,7 @@ const server = Bun.serve({
                         return new Response('Internal server error.', { status: 500 });
                     };
 
-                    return new Response(JSON.stringify({ token }), { status: 200, headers: Headers });
+                    return new Response(JSON.stringify({ token }), { status: 200, headers });
                 } else {
                     const dbInstance = Database.getInstance();
                     const db = await dbInstance.getDb();
@@ -373,7 +373,7 @@ const server = Bun.serve({
                             ]);
                         });
 
-                        return new Response(JSON.stringify({ token }), { status: 200, headers: Headers });
+                        return new Response(JSON.stringify({ token }), { status: 200, headers });
                     } catch (error) {
                         console.error(error);
                         return new Response('Internal server error.', { status: 500 });
