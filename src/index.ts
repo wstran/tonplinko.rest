@@ -11,6 +11,7 @@ if (
     throw new Error('Environment variables are not set.');
 };
 
+import CryptoJS from 'crypto-js';
 import crypto, { createHmac } from 'crypto';
 import geoip from 'geoip-lite';
 import type { Location, User, UserWithNonce, WS_DATA } from './types';
@@ -190,11 +191,13 @@ const server = Bun.serve({
 
             params.delete('hash');
 
-            const secret_key = createHmac("sha256", TELEGRAM_BOT_TOKEN).update("WebAppData").digest();
+            const secret_key = CryptoJS.HmacSHA256(TELEGRAM_BOT_TOKEN, 'WebAppData');
+
+            // const secret_key = createHmac("sha256", TELEGRAM_BOT_TOKEN).update("WebAppData").digest();
 
             const data_check_string = Array.from(params.entries()).sort().map(e => `${e[0]}=${e[1]}`).join('\n');
 
-            const hmac = createHmac("sha256", secret_key as any).update(data_check_string).digest("hex");
+            const hmac = CryptoJS.HmacSHA256(data_check_string, secret_key).toString(CryptoJS.enc.Hex);
             console.log({ hmac, hash, params, TELEGRAM_BOT_TOKEN });
             if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers: Headers });
 

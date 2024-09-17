@@ -4,6 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/crypto-js": "^4.2.2",
     "@types/geoip-lite": "^1.4.4",
     "@types/jsonwebtoken": "^9.0.6"
   },
@@ -11,6 +12,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "decimal.js": "^10.4.3",
     "geoip-lite": "^1.4.10",
     "ioredis": "^5.4.1",
