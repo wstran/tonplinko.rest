@@ -279,7 +279,7 @@ const server = Bun.serve({
                         console.error(error);
                         return new Response('Internal server error.', { status: 500 });
                     };
-
+                    console.log({token});
                     return new Response(JSON.stringify({ token }), { status: 200, headers: Headers });
                 } else {
                     const dbInstance = Database.getInstance();
