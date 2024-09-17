@@ -80,6 +80,7 @@ const Headers = {
     'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type, --webapp-init, --webapp-hash',
     'Access-Control-Max-Age': '86400',
+    'Content-Type': 'application/json',
 };
 
 const server = Bun.serve({
