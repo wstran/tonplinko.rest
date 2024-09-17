@@ -194,7 +194,7 @@ const server = Bun.serve({
 
             const data_check_string = Array.from(params.entries()).sort().map(e => `${e[0]}=${e[1]}`).join('\n');
 
-            const hmac = createHmac("sha256", data_check_string).update(secret_key).digest("hex");
+            const hmac = createHmac("sha256", secret_key).update(data_check_string).digest("hex");
             console.log({ hmac, hash, params });
             if (hmac !== hash) return new Response('Invalid user data.', { status: 403, headers: Headers });
 
