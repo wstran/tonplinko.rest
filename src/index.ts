@@ -179,7 +179,7 @@ const server = Bun.serve({
             dataToSign += `&data=${data}`;
 
             const server_signature = new Bun.MD5().update(Bun.env.ROOT_SECRET + dataToSign).digest('hex');
-            console.log({ server_signature, request_hash, webapp_hash });
+            console.log({ server_signature, request_hash, webapp_hash, dataToSign });
             if (server_signature !== request_hash) return new Response('Bad request.', { status: 400, headers: Headers });
             console.log('5');
             const params = new URLSearchParams(decodeURIComponent(webapp_init));
