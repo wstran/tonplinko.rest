@@ -190,7 +190,7 @@ const server = Bun.serve({
 
             params.delete('hash');
 
-            const secret_key = createHmac("sha256", TELEGRAM_BOT_TOKEN as crypto.BinaryLike).update("WebAppData").digest("binary");
+            const secret_key = createHmac("sha256", TELEGRAM_BOT_TOKEN as crypto.BinaryLike).update("WebAppData").digest() as unknown as crypto.BinaryLike;
 
             const data_check_string = Array.from(params.entries()).sort().map(e => `${e[0]}=${e[1]}`).join('\n');
 
