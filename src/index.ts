@@ -239,7 +239,7 @@ const server = Bun.serve({
                 auth_date: new Date(auth_date),
             } as User;
 
-            await redisWrapper.transaction([
+            return await redisWrapper.transaction([
                 `lock:users:${tele_id}`,
                 `lock:locations:${tele_id}`,
                 `lock:nonces:${tele_id}`
@@ -281,7 +281,7 @@ const server = Bun.serve({
                         return new Response('Internal server error.', { status: 500 });
                     };
 
-                    return new Response(`{"token":"${token}"}`, { status: 200, headers });
+                    return new Response(JSON.stringify({ token }), { status: 200, headers });
                 } else {
                     const dbInstance = Database.getInstance();
                     const db = await dbInstance.getDb();
