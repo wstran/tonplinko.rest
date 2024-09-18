@@ -6,6 +6,46 @@ export const getUser = async (tele_id: string) => {
     return await redisWrapper.get('users', tele_id) as Record<string, any>;
 }
 
+export const getTPLFarmBalance = async (tele_id: string) => {
+    return (await redisWrapper.get('users', tele_id) as Record<string, any>)?.tpl_farm_balance as number || 0;
+}
+
+export const setTPLFarmBalance = async (tele_id: string, amount: number, set_tpl_farm_balance_at: Date) => {
+    const previous = await redisWrapper.get('users', tele_id) as Record<string, any>;
+
+    if (previous === null) return false;
+
+    await redisWrapper.set('users', tele_id, { tpl_farm_balance: amount, set_tpl_farm_balance_at });
+
+    return true;
+}
+
+export const addTPLFarmBalance = async (tele_id: string, amount: number, add_tpl_farm_balance_at: Date) => {
+    const previous = await redisWrapper.get('users', tele_id) as Record<string, any>;
+
+    if (previous === null) return false;
+
+    await redisWrapper.set('users', tele_id, {
+        tpl_farm_balance: new Decimal((await getTPLFarmBalance(tele_id)) || 0).plus(amount).toNumber(),
+        add_tpl_farm_balance_at
+    });
+
+    return true;
+}
+
+export const removeTPLFarmBalance = async (tele_id: string, amount: number, remove_tpl_farm_balance_at: Date) => {
+    const previous = await redisWrapper.get('users', tele_id) as Record<string, any>;
+
+    if (previous === null) return false;
+
+    await redisWrapper.set('users', tele_id, {
+        tpl_farm_balance: new Decimal((await getTPLFarmBalance(tele_id)) || 0).minus(amount).toNumber(),
+        remove_tpl_farm_balance_at
+    });
+
+    return true;
+}
+
 export const getFarmLevel = async (tele_id: string) => {
     const previous = await redisWrapper.get('users', tele_id) as Record<string, any>;
 
@@ -51,7 +91,7 @@ export const unSetUserFarmed = async (tele_id: string, created_at: Date) => {
 }
 
 export const getTPLBalance = async (tele_id: string) => {
-    return (await redisWrapper.get('users', tele_id) as Record<string, any>)?.balances?.tpl || 0;   
+    return (await redisWrapper.get('users', tele_id) as Record<string, any>)?.balances?.tpl || 0;
 }
 
 export const setTPLBalance = async (tele_id: string, amount: number, created_at: Date) => {

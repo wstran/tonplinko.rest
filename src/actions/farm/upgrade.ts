@@ -1,5 +1,5 @@
 import type { UserWithNonce } from "../../types";
-import { unSetUserFarmed, useUser, getFarmConfig, getUser, removeTPLBalance, setFarmLevel, addLog } from "../../hooks/useUser";
+import { unSetUserFarmed, useUser, getFarmConfig, getUser, removeTPLBalance, setFarmLevel, addLog, addTPLFarmBalance } from "../../hooks/useUser";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
     try {
@@ -31,11 +31,21 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                 return;
             };
 
+            const current_timestamp = now_date.getTime();
+
+            const farm_speed_per_hour = farm_config[user_data.farm_level.toString()].speed_per_hour;
+
+            const total_farm_amount = ((current_timestamp - Date.parse(user_data.farm_at)) / (1000 * 60 * 60));
+
+            const farm_amount_tpl = (total_farm_amount > 2 ? 2 : total_farm_amount) * farm_speed_per_hour;
+
+            const added = await addTPLFarmBalance(user.tele_id, farm_amount_tpl, now_date);
+
             const removed = await removeTPLBalance(user.tele_id, upgarde_cost, now_date);
 
             const seted = await setFarmLevel(user.tele_id, new_level, now_date);
 
-            if (removed === false || seted === false) return;
+            if (added === false || removed === false || seted === false) return;
 
             await addLog(user.tele_id, {
                 log_type: 'farm/upgrade',
