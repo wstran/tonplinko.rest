@@ -7,25 +7,15 @@ export default async (_: UserWithNonce, data: Record<string, any>, replyMessage:
     if (data.projection === '*') {
         const all_config = await redisWrapper.get_all('config');
 
-        response_config = Object.values(all_config).reduce((acc, config) => {
-            const _config = config;
+        response_config = Object.values(all_config).map(i => Object.entries(i)).reduce((acc, config) => {
+            const [key, value] = [config[0][0], config[0][1]];
 
-            delete _config._id;
+            delete value._id;
 
-            return { ...acc, ..._config };
-        }, {});
-    } else {
-        const porjections = data.projection.split(' ');
+            delete value.config_type;
 
-        for (const projection of porjections) {
-            const config = await redisWrapper.get('config', projection) as Record<string, any>;
-
-            if (config === null) continue;
-
-            delete config._id;
-
-            response_config[projection] = config;
-        };
+            return { ...acc, [key]: value };
+        }, {} as Record<string, any>);
     };
 
     replyMessage(data.return_action, response_config);

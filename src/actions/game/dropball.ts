@@ -1,7 +1,7 @@
 import type { UserWithNonce } from "../../types";
 import binData from "../../bins";
 import { generateRandomInt } from "../../libs/custom";
-import { getBinRisk, getTPPBalance, setTPPBalance, useUser } from "../../hooks/useUser";
+import { getBinRisk, getTPLBalance, setTPLBalance, useUser } from "../../hooks/useUser";
 import Decimal from "decimal.js";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
@@ -13,20 +13,17 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
     try {
         const exists = await useUser(user.tele_id, async () => {
-            const tpp_balance = await getTPPBalance(user.tele_id);
+            const tpl_balance = await getTPLBalance(user.tele_id);
 
-            if (tpp_balance <= data.ball_price) {
+            if (tpl_balance <= data.ball_price) {
                 replyMessage('receiver_message_data', { content: 'You do not have enough balance to drop the ball', type: 'error' });
                 return;
             };
 
-            let new_balance = new Decimal(tpp_balance).minus(data.ball_price).toNumber();
-
-            const now_date = new Date();
-
             const percent = generateRandomInt(0, 100);
 
             let bin = 8;
+
             if (data.risk_level === 'HIGH') {
                 bin = percent > 1 ? generateRandomInt(5, 11) : generateRandomInt(1, 15);
             } else if (data.risk_level === 'MEDIUM') {
@@ -34,6 +31,8 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             } else if (data.risk_level === 'LOW') {
                 bin = percent > 1 ? generateRandomInt(7, 10) : generateRandomInt(1, 15);
             };
+
+            const now_date = new Date();
 
             const ball_seed = binData[data.row][bin][generateRandomInt(0, binData[data.row][bin].length - 1)];
 
@@ -43,9 +42,11 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             if (!bin_risk) return;
 
+            let new_balance = new Decimal(tpl_balance).minus(data.ball_price).toNumber();
+
             new_balance = new Decimal(new_balance).plus(new Decimal(data.ball_price).times(bin_risk).toNumber()).toNumber();
 
-            const seted = await setTPPBalance(user.tele_id, new_balance);
+            const seted = await setTPLBalance(user.tele_id, new_balance, now_date);
 
             if (seted === false) return;
 

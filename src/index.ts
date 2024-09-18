@@ -122,7 +122,7 @@ const server = Bun.serve({
                     tele_id: '123456789',
                     name: 'Biki',
                     username: 'biki',
-                    balances: { tpp: 100000 },
+                    balances: { tpl: 100000 },
                     auth_date: new Date(),
                 } as User;
 
@@ -270,7 +270,7 @@ const server = Bun.serve({
                                     ...formattedLocation,
                                     last_active_at: now_date,
                                 }
-                            ]),
+                            ]), 
                             redisWrapper.set_ttl(`nonces:${user.tele_id}`, nonce, 60 * 60)
                         ]);
                     } catch (error) {
@@ -323,7 +323,8 @@ const server = Bun.serve({
                                 username: user.username,
                                 auth_date: user.auth_date,
                                 last_active_at: now_date,
-                                ip_location: formattedLocation
+                                ip_location: formattedLocation,
+                                farm_level: 1,
                             };
 
                             const update_user_result = await userCollection.findOneAndUpdate(
@@ -484,6 +485,7 @@ const server = Bun.serve({
                 const client = dbInstance.getClient();
                 const userCollection = db.collection('users');
                 const locationCollection = db.collection('locations');
+                const logCollection = db.collection('logs');
 
                 const session = client.startSession({
                     defaultTransactionOptions: {
@@ -497,20 +499,23 @@ const server = Bun.serve({
                     await redisWrapper.transaction([
                         `lock:users:${tele_id}`,
                         `lock:locations:${tele_id}`,
-                        `lock:nonces:${tele_id}`
+                        `lock:logs:${tele_id}`,
+                        `lock:nonces:${tele_id}`,
                     ], 15, async () => {
                         if (Bun.env.NODE_ENV === 'development') {
                             await Promise.all([
                                 redisWrapper.del('users', tele_id),
                                 redisWrapper.del('locations', tele_id),
+                                redisWrapper.del('logs', tele_id),
                                 redisWrapper.del_ttl(`nonces:${tele_id}`),
                             ]);
                         } else {
                             await session.withTransaction(async () => {
-                                const [user_data, locations] = await Promise.all([
+                                const [user_data, locations, logs] = await Promise.all([
                                     redisWrapper.get('users', tele_id),
                                     redisWrapper.get('locations', tele_id),
-                                ]) as [User, []];
+                                    redisWrapper.get('logs', tele_id),
+                                ]) as [User, [], []];
 
                                 const now_date = new Date();
 
@@ -521,22 +526,27 @@ const server = Bun.serve({
                                     }
                                 }));
 
-                                const [update_user_result, update_location_result] = await Promise.all([
+                                const [update_user_result, update_location_result, insert_log_result] = await Promise.all([
                                     userCollection.updateOne(
                                         { tele_id },
                                         { $set: { ...user_data, last_active_at: now_date } },
                                         { session }
                                     ),
                                     locationBulks.length > 0 && locationCollection.bulkWrite(locationBulks, { session }),
+                                    logs.length > 0 && logCollection.insertMany(logs, { session }),
                                 ]);
 
-                                if (update_user_result.acknowledged !== true || (update_location_result !== false && update_location_result.isOk() !== true)) {
+                                if (
+                                    update_user_result.acknowledged !== true ||
+                                    (insert_log_result !== false && insert_log_result.acknowledged !== true) ||
+                                    (update_location_result !== false && update_location_result.isOk() !== true)) {
                                     throw new Error('Transaction failed to commit.');
                                 };
 
                                 await Promise.all([
                                     redisWrapper.del('users', tele_id),
                                     redisWrapper.del('locations', tele_id),
+                                    redisWrapper.del('logs', tele_id),
                                     redisWrapper.del_ttl(`nonces:${tele_id}`),
                                 ]);
                             });
