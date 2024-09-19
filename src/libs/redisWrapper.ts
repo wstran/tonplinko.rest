@@ -1,6 +1,6 @@
 import IORedis from "ioredis";
 
-const redisClient = new IORedis(Bun.env.REDIS_URL!, { retryStrategy: (times) => Math.min(times * 50, 2000) });
+const redisClient = new IORedis(process.env.REDIS_URL!, { retryStrategy: (times) => Math.min(times * 50, 2000) });
 
 async function transaction(keys: string[], ttl: number, callback: Function) {
     await Promise.all(keys.map(async (key) => await await_unlock(key)));

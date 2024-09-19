@@ -41,6 +41,8 @@ class User {
         };
 
         this._user.boosts = { ...this._user.boosts, [boost_id]: { percent, start_at, end_at } };
+
+        return true;
     };
 
     removeBoost(boost_id: string) {
@@ -49,6 +51,8 @@ class User {
         if (this._user.boosts) {
             delete this._user.boosts[boost_id];
         };
+
+        return true;
     };
 
     getTPLFarmBalance() {
@@ -182,6 +186,8 @@ class User {
         if (!this._user) return false;
 
         await redisWrapper.set('users', this.tele_id, this._user);
+
+        return true;
     };
 
     // CONFIG
@@ -208,6 +214,8 @@ class User {
         if (previous === null) return false;
 
         await redisWrapper.set('logs', this.tele_id, { ...previous, logs: [...previous.logs, log] });
+
+        return true;
     };
 }
 
