@@ -1,15 +1,16 @@
 import type { UserWithNonce } from "../../types";
-import { useUser, getFarmConfig, getUser, addLog, addTPLBalance, setUserFarmed, getTPLFarmBalance } from "../../hooks/useUser";
+import { useUser } from "../../hooks/useUser";
+import Decimal from "decimal.js";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
     try {
-        const exists = await useUser(user.tele_id, async () => {
+        const exists = await useUser(user.tele_id, async (hook) => {
             const [farm_config, user_data] = await Promise.all([
-                getFarmConfig(),
-                getUser(user.tele_id),
+                hook.getFarmConfig(),
+                hook.getUser(),
             ]);
 
-            if (farm_config === null || user_data === null) return;
+            if (!farm_config || !user_data) return;
 
             if (!user_data.farm_at) {
                 replyMessage('receiver_message_data', { content: 'You have not farmed yet', type: 'error' });
@@ -29,19 +30,23 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const farm_speed_per_hour = farm_config[user_data.farm_level.toString()].speed_per_hour;
 
-            const total_farm_amount = ((current_timestamp - farm_timestamp) / (1000 * 60 * 60));
+            const total_farm_amount = new Decimal(current_timestamp)
+                .minus(farm_timestamp)
+                .div(1000 * 60 * 60)
+                .times(new Decimal(hook.getAllBoostPercent() || 0).div(100))
+                .toNumber();
 
-            const tpl_farm_balance = await getTPLFarmBalance(user.tele_id);
+            const tpl_farm_balance = hook.getTPLFarmBalance();
 
-            const farm_amount_tpl = ((total_farm_amount > 2 ? 2 : total_farm_amount) * farm_speed_per_hour) + tpl_farm_balance;
+            const farm_amount_tpl = new Decimal((total_farm_amount > 2 ? 2 : total_farm_amount)).times(farm_speed_per_hour).plus(tpl_farm_balance).toNumber();
 
-            const added = await addTPLBalance(user.tele_id, farm_amount_tpl, now_date);
+            const added = hook.addTPLBalance(farm_amount_tpl, now_date);
 
-            const unseted = await setUserFarmed(user.tele_id, now_date);
+            const unseted = hook.setUserFarmed(now_date);
 
             if (added === false || unseted === false) return;
 
-            await addLog(user.tele_id, {
+            hook.addLog({
                 log_type: 'farm/claim',
                 tele_id: user.tele_id,
                 amount: farm_amount_tpl,

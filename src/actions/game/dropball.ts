@@ -1,7 +1,7 @@
 import type { UserWithNonce } from "../../types";
 import binData from "../../bins";
 import { generateRandomInt } from "../../libs/custom";
-import { getBinRisk, getTPLBalance, setTPLBalance, useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/useUser";
 import Decimal from "decimal.js";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
@@ -12,8 +12,8 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
     ) return;
 
     try {
-        const exists = await useUser(user.tele_id, async () => {
-            const tpl_balance = await getTPLBalance(user.tele_id);
+        const exists = await useUser(user.tele_id, async (hook) => {
+            const tpl_balance = hook.getTPLBalance();
 
             if (tpl_balance <= data.ball_price) {
                 replyMessage('receiver_message_data', { content: 'You do not have enough balance to drop the ball', type: 'error' });
@@ -38,7 +38,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const ball_id = new Bun.MD5().update(`${user.tele_id}${now_date.getTime()}${bin}${ball_seed}${Math.random()}`).digest('hex');
 
-            const bin_risk = await getBinRisk(data.row, data.risk_level, bin);
+            const bin_risk = await hook.getBinRisk(data.row, data.risk_level, bin);
 
             if (!bin_risk) return;
 
@@ -46,7 +46,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             new_balance = new Decimal(new_balance).plus(new Decimal(data.ball_price).times(bin_risk).toNumber()).toNumber();
 
-            const seted = await setTPLBalance(user.tele_id, new_balance, now_date);
+            const seted = hook.setTPLBalance(new_balance, now_date);
 
             if (seted === false) return;
 

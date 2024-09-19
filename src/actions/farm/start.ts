@@ -1,10 +1,10 @@
 import type { UserWithNonce } from "../../types";
-import { isUserFarmed, setUserFarmed, useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/useUser";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
     try {
-        const exists = await useUser(user.tele_id, async () => {
-            const is_farmed = await isUserFarmed(user.tele_id);
+        const exists = await useUser(user.tele_id, async (hook) => {
+            const is_farmed = hook.isUserFarmed();
 
             if (is_farmed) {
                 replyMessage('receiver_message_data', { content: 'You have already farmed', type: 'error' });
@@ -13,7 +13,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const now_date = new Date();
 
-            const seted = await setUserFarmed(user.tele_id, now_date);
+            const seted = hook.setUserFarmed(now_date);
 
             if (seted === false) return
 

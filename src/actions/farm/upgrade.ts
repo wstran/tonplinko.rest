@@ -1,21 +1,22 @@
 import type { UserWithNonce } from "../../types";
-import { unSetUserFarmed, useUser, getFarmConfig, getUser, removeTPLBalance, setFarmLevel, addLog, addTPLFarmBalance } from "../../hooks/useUser";
+import { useUser } from "../../hooks/useUser";
+import Decimal from "decimal.js";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
     try {
-        const exists = await useUser(user.tele_id, async () => {
+        const exists = await useUser(user.tele_id, async (hook) => {
             const now_date = new Date();
 
-            const unseted = await unSetUserFarmed(user.tele_id, now_date);
+            const unseted = hook.unSetUserFarmed(now_date);
 
             if (unseted === false) return;
 
             const [farm_config, user_data] = await Promise.all([
-                getFarmConfig(),
-                getUser(user.tele_id),
+                hook.getFarmConfig(),
+                hook.getUser(),
             ]);
 
-            if (farm_config === null || user_data === null) return;
+            if (!farm_config || !user_data) return;
 
             if (user_data.farm_level === 20) {
                 replyMessage('receiver_message_data', { content: 'Your farm is already at the maximum level', type: 'error' });
@@ -35,19 +36,23 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const farm_speed_per_hour = farm_config[user_data.farm_level.toString()].speed_per_hour;
 
-            const total_farm_amount = ((current_timestamp - Date.parse(user_data.farm_at)) / (1000 * 60 * 60));
+            const farm_amount_tpl = new Decimal(new Decimal(current_timestamp)
+                .minus(Date.parse(user_data.farm_at))
+                .div(1000 * 60 * 60)
+                .times(new Decimal(hook.getAllBoostPercent() || 0).div(100))
+                .toNumber())
+                .times(farm_speed_per_hour)
+                .toNumber();
 
-            const farm_amount_tpl = (total_farm_amount > 2 ? 2 : total_farm_amount) * farm_speed_per_hour;
+            const added = hook.addTPLFarmBalance(farm_amount_tpl, now_date);
 
-            const added = await addTPLFarmBalance(user.tele_id, farm_amount_tpl, now_date);
+            const removed = hook.removeTPLBalance(upgarde_cost, now_date);
 
-            const removed = await removeTPLBalance(user.tele_id, upgarde_cost, now_date);
-
-            const seted = await setFarmLevel(user.tele_id, new_level, now_date);
+            const seted = hook.setFarmLevel(new_level, now_date);
 
             if (added === false || removed === false || seted === false) return;
 
-            await addLog(user.tele_id, {
+            hook.addLog({
                 log_type: 'farm/upgrade',
                 tele_id: user.tele_id,
                 from_level: user_data.farm_level,
