@@ -545,7 +545,7 @@ const server = Bun.serve({
                                         { session }
                                     ),
                                     locationBulks.length > 0 && locationCollection.bulkWrite(locationBulks, { session }),
-                                    logs.length > 0 && logCollection.insertMany(logs, { session }),
+                                    (logs !== null && logs.length > 0) && logCollection.insertMany(logs, { session }),
                                 ]);
 
                                 if (
