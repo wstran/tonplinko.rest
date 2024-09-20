@@ -45,7 +45,7 @@ class User {
         }, 0);
     };
 
-    addBoost(boost_id: string, percent: number, start_at: Date, end_at: Date) {
+    addBoost(boost_id: string, percent: number, refs: number, start_at: Date, end_at: Date) {
         if (!this._user) return false;
 
         if (this._user.boosts) {
@@ -56,7 +56,15 @@ class User {
             };
         };
 
-        this._user.boosts = { ...this._user.boosts, [boost_id]: { percent, start_at, end_at } };
+        this._user.boosts = { ...this._user.boosts, [boost_id]: { percent, start_at, end_at, refs } };
+
+        return true;
+    };
+
+    editBoost(boost_id: string, data: { percent: number, refs: number, start_at: Date, end_at: Date }) {
+        if (!this._user || !this._user.boosts) return false;
+
+        this._user.boosts[boost_id] = { ...this._user.boosts[boost_id], ...data };
 
         return true;
     };
@@ -238,18 +246,18 @@ class User {
 export const useUser = async (tele_id: string, handler: (user: User) => Promise<void>) => {
     if (!await redisWrapper.has('users', tele_id)) return null;
 
-    const user = new User(tele_id);
-
-    await user.init();
-
-    const result = await redisWrapper.transaction([
+    return await redisWrapper.transaction([
         `lock:users:${tele_id}`,
         `lock:locations:${tele_id}`,
         `lock:logs:${tele_id}`,
         `lock:nonces:${tele_id}`,
-    ], 15, async () => await handler(user));
+    ], 15, async () => {
+        const user = new User(tele_id);
 
-    await user.save();
+        await user.init();
 
-    return result;
+        await handler(user);
+
+        await user.save();
+    });
 }

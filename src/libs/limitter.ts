@@ -28,7 +28,7 @@ export const rateLimitMiddleware = (req: Request) => {
     return null;
 }
 
-export const rateLimitWebSocket = (socket: ServerWebSocket<unknown>, clientIp: string) => {
+export const rateLimitWebSocket = (_: ServerWebSocket<unknown>, clientIp: string) => {
     const currentTime = Date.now();
 
     if (!socketLimits.has(clientIp)) {
