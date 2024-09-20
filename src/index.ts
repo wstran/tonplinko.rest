@@ -284,6 +284,7 @@ const server = Bun.serve({
                     const db = await dbInstance.getDb();
                     const client = dbInstance.getClient();
                     const userCollection = db.collection('users');
+                    const todoCollection = db.collection('todos');
                     const locationCollection = db.collection('locations');
 
                     const session = client.startSession({
@@ -296,23 +297,23 @@ const server = Bun.serve({
 
                     try {
                         await session.withTransaction(async () => {
-                            const referral_by = params.get('start_param');
+                            const referraled_by = params.get('start_param');
 
-                            const insert: { created_at?: Date; referral_code?: string; referral_by?: string } = {};
+                            const insert: { created_at?: Date; referral_code?: string; referraled_by?: string } = {};
 
                             const is_new = await userCollection.countDocuments({ tele_id }, { session }) === 0;
 
                             while (is_new) {
                                 const generate_invite = generateRandomUpperString(14);
 
-                                if (generate_invite !== referral_by && await userCollection.countDocuments({ referral_code: generate_invite }, { session }) === 0) {
+                                if (generate_invite !== referraled_by && await userCollection.countDocuments({ referral_code: generate_invite }, { session }) === 0) {
                                     insert.created_at = now_date;
                                     insert.referral_code = generate_invite;
 
-                                    if (typeof referral_by === 'string') {
-                                        const is_invite_code_valid = await userCollection.countDocuments({ referral_by }, { session }) === 1;
+                                    if (typeof referraled_by === 'string') {
+                                        const is_invite_code_valid = await userCollection.countDocuments({ referraled_by }, { session }) === 1;
 
-                                        if (is_invite_code_valid) insert.referral_by = referral_by;
+                                        if (is_invite_code_valid) insert.referraled_by = referraled_by;
                                     };
                                     break;
                                 };
@@ -327,33 +328,44 @@ const server = Bun.serve({
                                 farm_level: 1,
                             };
 
-                            const update_user_result = await userCollection.findOneAndUpdate(
-                                { tele_id },
-                                {
-                                    $set: update_user,
-                                    $setOnInsert: insert,
-                                },
-                                {
-                                    upsert: true,
-                                    returnDocument: 'before',
-                                    projection: { _id: 0 },
-                                    session
-                                }
-                            );
+                            const [update_user_result, update_location_result, insert_todo_result] = await Promise.all([
+                                userCollection.findOneAndUpdate(
+                                    { tele_id },
+                                    {
+                                        $set: update_user,
+                                        $setOnInsert: insert,
+                                    },
+                                    {
+                                        upsert: true,
+                                        returnDocument: 'after',
+                                        projection: { _id: 0 },
+                                        session
+                                    }
+                                ),
+                                locationCollection.updateOne(
+                                    {
+                                        tele_id,
+                                        ip_address: clientIp,
+                                    },
+                                    {
+                                        $set: { ...formattedLocation, last_active_at: now_date },
+                                        $setOnInsert: { tele_id, created_at: now_date },
+                                    },
+                                    { upsert: true, session }
+                                ),
+                                todoCollection.insertOne(
+                                    {
+                                        todo_type: 'rest:add/user/invite',
+                                        tele_id: tele_id,
+                                        referraled_by: referraled_by,
+                                        created_at: now_date,
+                                        status: "pending",
+                                    },
+                                    { session },
+                                )
+                            ]);
 
-                            const update_location_result = await locationCollection.updateOne(
-                                {
-                                    tele_id,
-                                    ip_address: clientIp,
-                                },
-                                {
-                                    $set: { ...formattedLocation, last_active_at: now_date },
-                                    $setOnInsert: { tele_id, created_at: now_date },
-                                },
-                                { upsert: true, session }
-                            );
-
-                            if (update_location_result.acknowledged !== true) {
+                            if (update_user_result === null && update_location_result.acknowledged !== true || insert_todo_result.acknowledged !== true) {
                                 throw new Error('Transaction failed to commit.');
                             };
 

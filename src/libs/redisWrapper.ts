@@ -23,11 +23,14 @@ async function is_locked(key: string) {
 }
 
 async function await_unlock(key: string, interval: number = 1000) {
-    let ttl_exists = await has_ttl(key);
+    let stopped = false;
 
-    while (ttl_exists) {
+    setTimeout(() => stopped = true, 15000);
+
+    while (await is_locked(key)) {
         await new Promise(resolve => setTimeout(resolve, interval));
-        ttl_exists = await has_ttl(key);
+
+        if (stopped) return false;
     };
 
     return true;

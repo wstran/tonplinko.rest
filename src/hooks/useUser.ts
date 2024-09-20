@@ -19,6 +19,22 @@ class User {
         return this._user;
     };
 
+    getRewardPoints() {
+        if (!this._user) return null;
+
+        return this._user.referral_reward_points || 0;
+    };
+
+    addRewardPoints(referral_reward_points: number, created_at: Date) {
+        if (!this._user) return false;
+
+        this._user.referral_reward_points = new Decimal((this._user.referral_reward_points || 0)).plus(referral_reward_points).toNumber();
+        this._user.totals = { ...this._user.totals, referral_reward_points: new Decimal((this._user.totals.referral_reward_points || 0)).plus(referral_reward_points).toNumber() };
+        this._user.actions = { ...this._user.actions, set_referral_reward_points: created_at };
+
+        return true;
+    }
+
     getAllBoostPercent() {
         if (!this._user) return null;
 
@@ -220,7 +236,7 @@ class User {
 }
 
 export const useUser = async (tele_id: string, handler: (user: User) => Promise<void>) => {
-    if (!await redisWrapper.has('users', tele_id)) return;
+    if (!await redisWrapper.has('users', tele_id)) return null;
 
     const user = new User(tele_id);
 
