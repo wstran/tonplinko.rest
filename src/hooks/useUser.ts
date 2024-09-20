@@ -242,10 +242,14 @@ export const useUser = async (tele_id: string, handler: (user: User) => Promise<
 
     await user.init();
 
-    return await redisWrapper.transaction([
+    const result = await redisWrapper.transaction([
         `lock:users:${tele_id}`,
         `lock:locations:${tele_id}`,
         `lock:logs:${tele_id}`,
         `lock:nonces:${tele_id}`,
     ], 15, async () => await handler(user));
+
+    await user.save();
+
+    return result;
 }
