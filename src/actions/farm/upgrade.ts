@@ -67,7 +67,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                 created_at: now_date
             });
 
-            if (upgrade_type === 'ton') {
+            if (upgrade_type === 'ton' && user_data.referraled_by) {
                 const referral_ton_amount = new Decimal(upgarde_cost).times(0.05).toNumber();
 
                 const referral_exists = await useUser(user_data.referraled_by, async (user) => {
