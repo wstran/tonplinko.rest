@@ -1,6 +1,7 @@
 import type { UserWithNonce } from "../../types";
 import { useUser } from "../../hooks/useUser";
 import Decimal from "decimal.js";
+import Database from "../../libs/database";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
     try {
@@ -39,6 +40,40 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const tpl_farm_balance = hook.getTPLFarmBalance();
 
             const farm_amount_tpl = new Decimal((total_farm_amount > 2 ? 2 : total_farm_amount)).times(farm_speed_per_hour).plus(tpl_farm_balance).toNumber();
+
+            if (user_data.referraled_by) {
+                const dbInstance = Database.getInstance();
+                const db = await dbInstance.getDb();
+                const client = dbInstance.getClient();
+                const todoCollection = db.collection('todos');
+
+                const session = client.startSession({
+                    defaultTransactionOptions: {
+                        readConcern: { level: 'local' },
+                        writeConcern: { w: 1 },
+                        retryWrites: false
+                    }
+                });
+
+                try {
+                    await session.withTransaction(async () => {
+                        const insert_todo_result = await todoCollection.insertOne({
+                            todo_type: 'rest:claim/referral',
+                            status: "pending",
+                            tele_id: user_data.tele_id,
+                            referraled_by: user_data.referraled_by,
+                            farm_points: farm_amount_tpl,
+                            created_at: now_date
+                        }, { session });
+
+                        if (insert_todo_result.acknowledged !== true) throw new Error('Insert todo failed');
+                    });
+                } catch (error) {
+                    return console.error(error);
+                } finally {
+                    await session.endSession();
+                };
+            };
 
             const added = hook.addTPLBalance(farm_amount_tpl, now_date);
 
