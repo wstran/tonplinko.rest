@@ -330,9 +330,9 @@ const server = Bun.serve({
                                     insert.referral_code = generate_invite;
 
                                     if (typeof referraled_by === 'string') {
-                                        const is_invite_code_valid = await userCollection.countDocuments({ referraled_by }, { session }) === 1;
-
-                                        if (is_invite_code_valid) insert.referraled_by = referraled_by;
+                                        if (await userCollection.countDocuments({ referraled_by }, { session }) === 1) {
+                                            insert.referraled_by = referraled_by;
+                                        };
                                     };
                                     break;
                                 };
@@ -372,11 +372,11 @@ const server = Bun.serve({
                                     },
                                     { upsert: true, session }
                                 ),
-                                todoCollection.insertOne(
+                                !!insert.referraled_by && todoCollection.insertOne(
                                     {
-                                        todo_type: 'rest:add/user/invite',
+                                        todo_type: 'rest:add/referral/user',
                                         tele_id: tele_id,
-                                        referraled_by: referraled_by,
+                                        referraled_by: insert.referraled_by,
                                         created_at: now_date,
                                         status: "pending",
                                     },
@@ -384,7 +384,7 @@ const server = Bun.serve({
                                 )
                             ]);
 
-                            if (update_user_result === null && update_location_result.acknowledged !== true || insert_todo_result.acknowledged !== true) {
+                            if (update_user_result === null && update_location_result.acknowledged !== true || (insert_todo_result !== false && insert_todo_result.acknowledged !== true)) {
                                 throw new Error('Transaction failed to commit.');
                             };
 
