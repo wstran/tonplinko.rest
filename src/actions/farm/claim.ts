@@ -21,7 +21,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const current_timestamp = now_date.getTime();
 
-            const farm_timestamp = Date.parse(user_data.farm_at);
+            const farm_timestamp = user_data.farm_at.getTime();
 
             if (current_timestamp - farm_timestamp < 2 * 60 * 60 * 1000) {
                 replyMessage('receiver_message_data', { content: 'You can only claim every 2 hours', type: 'error' });

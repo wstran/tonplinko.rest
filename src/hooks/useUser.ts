@@ -40,17 +40,19 @@ class User {
 
         const current_timestamp = Date.now();
 
-        return Object.values(this._user.boosts as Record<string, { end_at: string, percent: number }>).reduce((acc, boost) => {
-            return Date.parse(boost.end_at) > current_timestamp ? new Decimal(acc).plus(boost.percent).toNumber() : acc;
+        return Object.values(this._user.boosts as Record<string, { end_at: Date, percent: number }>).reduce((acc, boost) => {
+            return boost.end_at.getTime() > current_timestamp ? new Decimal(acc).plus(boost.percent).toNumber() : acc;
         }, 0);
     };
 
     addBoost(boost_id: string, percent: number, refs: number, start_at: Date, end_at: Date) {
         if (!this._user) return false;
 
+        const current_timestamp = Date.now();
+
         if (this._user.boosts) {
             for (const boost_id in this._user.boosts) {
-                if (Date.parse(this._user.boosts[boost_id].end_at) < Date.now()) {
+                if (this._user.boosts[boost_id].end_at.getTime() < current_timestamp) {
                     delete this._user.boosts[boost_id];
                 };
             };

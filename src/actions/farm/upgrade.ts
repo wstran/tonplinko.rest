@@ -37,7 +37,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const farm_speed_per_hour = farm_config[user_data.farm_level.toString()].speed_per_hour;
 
             const farm_amount_tpl = new Decimal(new Decimal(current_timestamp)
-                .minus(Date.parse(user_data.farm_at))
+                .minus(user_data.farm_at.getTime())
                 .div(1000 * 60 * 60)
                 .times(new Decimal(hook.getAllBoostPercent() || 0).div(100))
                 .toNumber())

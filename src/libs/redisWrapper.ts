@@ -42,8 +42,16 @@ async function unlock(key: string) {
 
 const get_all = async (key: string) => {
     const users = await redisClient.hgetall(key);
-    
-    return Object.entries(users).map(([key, value]) => ({ [key]: JSON.parse(value) }));
+
+    return Object.entries(users).map(([key, value]) => ({
+        [key]: JSON.parse(value, (_, value) => {
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+                return new Date(value);
+            };
+
+            return value;
+        })
+    }));
 }
 
 const has = async (key: string, field: string) => {
@@ -53,7 +61,13 @@ const has = async (key: string, field: string) => {
 const get = async (key: string, field: string, returnType?: 'raw'): Promise<Record<string, any> | string | null> => {
     const data = await redisClient.hget(key, field);
 
-    return data ? (returnType === 'raw' ? data : JSON.parse(data)) : null;
+    return data ? (returnType === 'raw' ? data : JSON.parse(data, (_, value) => {
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+            return new Date(value);
+        };
+
+        return value;
+    })) : null;
 }
 
 const set = async (key: string, field: string, value: Record<string, any>) => {
@@ -103,7 +117,7 @@ const list_assign = async (key: string, index: number, value: Record<string, any
 
     if (get_data) {
         await redisClient.lset(key, index, JSON.stringify({ ...get_data, ...value }));
-        
+
         return true;
     };
 
