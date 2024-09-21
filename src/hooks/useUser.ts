@@ -19,6 +19,26 @@ class User {
         return this._user;
     };
 
+    getTotal(name: string) {
+        return this._user?.totals?.[name] || 0;
+    };
+
+    setTotal(name: string, amount: number) {
+        if (!this._user) return false;
+
+        this._user.totals = { ...this._user.totals, [name]: amount };
+
+        return true;
+    };
+
+    addTotal(name: string, amount: number) {
+        if (!this._user) return false;
+
+        this._user.totals = { ...this._user.totals, [name]: new Decimal((this._user.totals[name] || 0)).plus(amount).toNumber() };
+
+        return true;
+    };
+
     getRewardPoints() {
         if (!this._user) return null;
 
@@ -48,11 +68,9 @@ class User {
     addBoost(boost_id: string, percent: number, refs: number, start_at: Date, end_at: Date) {
         if (!this._user) return false;
 
-        const current_timestamp = Date.now();
-
         if (this._user.boosts) {
             for (const boost_id in this._user.boosts) {
-                if (this._user.boosts[boost_id].end_at.getTime() < current_timestamp) {
+                if (this._user.boosts[boost_id].end_at.getTime() < Date.now()) {
                     delete this._user.boosts[boost_id];
                 };
             };
@@ -245,7 +263,7 @@ class User {
     };
 }
 
-export const useUser = async (tele_id: string, handler: (user: User) => Promise<void>) => {
+export const useUser = async (tele_id: string, handler: (user: User) => Promise<any>) => {
     if (!await redisWrapper.has('users', tele_id)) return null;
 
     return await redisWrapper.transaction([
@@ -261,5 +279,7 @@ export const useUser = async (tele_id: string, handler: (user: User) => Promise<
         await handler(user);
 
         await user.save();
+
+        return true;
     });
 }

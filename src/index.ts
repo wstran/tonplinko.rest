@@ -26,6 +26,25 @@ import { rateLimitMiddleware, rateLimitWebSocket } from './libs/limitter';
     const dbInstance = Database.getInstance();
     const db = await dbInstance.getDb();
     const configCollection = db.collection('config');
+    const userCollection = db.collection('users');
+    const logCollection = db.collection('logs');
+    const locationCollection = db.collection('locations');
+
+    // indexes of config
+    await configCollection.createIndex({ 'config_type': 1 });
+
+    // indexes of users
+    await userCollection.createIndex({ 'tele_id': 1 }, { unique: true });
+    await userCollection.createIndex({ 'referral_code': 1 }, { unique: true });
+    await userCollection.createIndex({ 'referraled_by': 1 }, { sparse: true });
+    await userCollection.createIndex({ 'username': 1 }, { sparse: true });
+    await userCollection.createIndex({ 'wallet.address': 1 }, { sparse: true });
+
+    // indexes of logs
+    await logCollection.createIndex({ log_type: 1, tele_id: 1 });
+
+    // indexes of locations
+    await locationCollection.createIndex({ tele_id: 1, ip_address: 1 }, { unique: true });
 
     const config_type_from_ids: Record<string, string> = {};
 
@@ -270,7 +289,7 @@ const server = Bun.serve({
                                     ...formattedLocation,
                                     last_active_at: now_date,
                                 }
-                            ]), 
+                            ]),
                             redisWrapper.set_ttl(`nonces:${user.tele_id}`, nonce, 60 * 60)
                         ]);
                     } catch (error) {
