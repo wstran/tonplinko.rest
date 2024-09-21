@@ -12,6 +12,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@ton/core": "^0.58.1",
     "crypto-js": "^4.2.0",
     "decimal.js": "^10.4.3",
     "geoip-lite": "^1.4.10",

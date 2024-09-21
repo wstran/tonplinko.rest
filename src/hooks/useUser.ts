@@ -19,6 +19,43 @@ class User {
         return this._user;
     };
 
+    isTaskAction(task_id: string, action: string) {
+        return this._user?.tasks?.[task_id]?.[action];
+    };
+
+    setTaskAction(task_id: string, action: string, created_at: Date) {
+        if (!this._user) return false;
+
+        this._user.tasks = { ...this._user.tasks, [task_id]: { ...this._user.tasks[task_id], [action]: { created_at } } };
+        this._user.actions = { ...this._user.actions, set_task_at: created_at };
+
+        return true;
+    };
+
+    isDepositing() {
+        return !!this._user?.is_depositing;
+    };
+
+    setDepositing(created_at: Date, estimate_at: Date) {
+        if (!this._user) return false;
+
+        this._user.is_depositing = true;
+        this._user.estimate_at = estimate_at;
+        this._user.actions = { ...this._user.actions, set_is_depositingat: created_at };
+
+        return true;
+    };
+
+    unSetDepositing(created_at: Date) {
+        if (!this._user) return false;
+
+        delete this._user.is_depositing;
+        delete this._user.estimate_at;
+        this._user.actions = { ...this._user.actions, unset_is_depositing_at: created_at };
+
+        return true;
+    };
+
     getTotal(name: string) {
         return this._user?.totals?.[name] || 0;
     };
@@ -274,6 +311,18 @@ class User {
 
     async getFarmConfig() {
         const config = await redisWrapper.get('config', 'farm') as Record<string, any>;
+
+        return config;
+    };
+
+    async getWithdrawConfig() {
+        const config = await redisWrapper.get('config', 'withdraw') as Record<string, any>;
+
+        return config;
+    };
+
+    async getTaskConfig() {
+        const config = await redisWrapper.get('config', 'task') as Record<string, any>;
 
         return config;
     };
