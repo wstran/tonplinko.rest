@@ -1,6 +1,7 @@
 import type { UserWithNonce } from "../../types";
 import { useUser } from "../../hooks/useUser";
 import Decimal from "decimal.js";
+import Database from "../../libs/database";
 
 export default async (user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
     try {
@@ -24,13 +25,13 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             };
 
             const new_level = user_data.farm_level + 1;
-            
+
             const level_config = farm_config[new_level.toString()];
 
             const upgrade_type = level_config.upgrade_type;
 
             const upgarde_cost = level_config.upgrade_cost;
-            
+
             if ((user_data.balances[upgrade_type] || 0) < upgarde_cost) {
                 replyMessage('receiver_message_data', { content: 'You do not have enough balance to upgrade the farm', type: 'error' });
                 return;
@@ -65,6 +66,45 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                 upgarde_cost,
                 created_at: now_date
             });
+
+            if (upgrade_type === 'ton') {
+                const referral_ton_amount = new Decimal(upgarde_cost).times(0.05).toNumber();
+
+                const referral_exists = await useUser(user_data.referraled_by, async (user) => {
+                    user.addTONBalance(referral_ton_amount, now_date);
+                });
+
+                if (referral_exists === true) return;
+
+                const dbInstance = Database.getInstance();
+                const db = await dbInstance.getDb();
+                const client = dbInstance.getClient();
+                const userCollection = db.collection('users');
+
+                const session = client.startSession({
+                    defaultTransactionOptions: {
+                        readConcern: { level: 'local' },
+                        writeConcern: { w: 1 },
+                        retryWrites: false
+                    }
+                });
+
+                try {
+                    await session.withTransaction(async () => {
+                        const update_user_result = await userCollection.updateOne(
+                            { tele_id: user_data.referraled_by },
+                            { $inc: { 'balances.ton': referral_ton_amount } },
+                            { session }
+                        );
+
+                        if (update_user_result.acknowledged === true) throw new Error('Update user failed');
+                    });
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    await session.endSession();
+                };
+            };
 
             replyMessage(data.return_action, { upgrade_type, upgarde_cost, new_level });
         });

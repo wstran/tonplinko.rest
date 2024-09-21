@@ -316,22 +316,25 @@ const server = Bun.serve({
 
                     try {
                         await session.withTransaction(async () => {
-                            const referraled_by = params.get('start_param');
+                            const referraled_by_code = params.get('start_param');
 
-                            const insert: { created_at?: Date; referral_code?: string; referraled_by?: string } = {};
+                            const insert: { created_at?: Date; referral_code?: string; referraled_by?: string, referraled_by_code?: string } = {};
 
                             const is_new = await userCollection.countDocuments({ tele_id }, { session }) === 0;
 
                             while (is_new) {
                                 const generate_invite = generateRandomUpperString(14);
 
-                                if (generate_invite !== referraled_by && await userCollection.countDocuments({ referral_code: generate_invite }, { session }) === 0) {
+                                if (generate_invite !== referraled_by_code && await userCollection.countDocuments({ referral_code: generate_invite }, { session }) === 0) {
                                     insert.created_at = now_date;
                                     insert.referral_code = generate_invite;
 
-                                    if (typeof referraled_by === 'string') {
-                                        if (await userCollection.countDocuments({ referraled_by }, { session }) === 1) {
-                                            insert.referraled_by = referraled_by;
+                                    if (typeof referraled_by_code === 'string') {
+                                        const referral_user = await userCollection.findOne({ referral_code: referraled_by_code }, { projection: { _id: 0, tele_id: 1 }, session });
+
+                                        if (referral_user !== null) {
+                                            insert.referraled_by = referral_user.tele_id;
+                                            insert.referraled_by_code = referraled_by_code;
                                         };
                                     };
                                     break;

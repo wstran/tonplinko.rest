@@ -41,6 +41,20 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const farm_amount_tpl = new Decimal((total_farm_amount > 2 ? 2 : total_farm_amount)).times(farm_speed_per_hour).plus(tpl_farm_balance).toNumber();
 
+            const added = hook.addTPLBalance(farm_amount_tpl, now_date);
+
+            const unseted = hook.setUserFarmed(now_date);
+
+            if (added === false || unseted === false) return;
+
+            hook.addLog({
+                log_type: 'farm/claim',
+                tele_id: user.tele_id,
+                amount: farm_amount_tpl,
+                farm_at: user_data.farm_at,
+                created_at: now_date
+            });
+
             if (user_data.referraled_by) {
                 const dbInstance = Database.getInstance();
                 const db = await dbInstance.getDb();
@@ -74,20 +88,6 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                     await session.endSession();
                 };
             };
-
-            const added = hook.addTPLBalance(farm_amount_tpl, now_date);
-
-            const unseted = hook.setUserFarmed(now_date);
-
-            if (added === false || unseted === false) return;
-
-            hook.addLog({
-                log_type: 'farm/claim',
-                tele_id: user.tele_id,
-                amount: farm_amount_tpl,
-                farm_at: user_data.farm_at,
-                created_at: now_date
-            });
 
             replyMessage(data.return_action, { farm_at: now_date, amount: farm_amount_tpl });
         });
