@@ -199,6 +199,37 @@ class User {
         return true;
     };
 
+    getTONBalance() {
+        return this._user?.balances?.ton || 0;
+    };
+
+    setTONBalance(amount: number, created_at: Date) {
+        if (!this._user) return false;
+
+        this._user.balances = { ...this._user.balances, ton: amount };
+        this._user.actions = { ...this._user.actions, set_ton_balance_at: created_at };
+
+        return true;
+    };
+
+    addTONBalance(amount: number, created_at: Date) {
+        if (!this._user) return false;
+
+        this._user.balances = { ...this._user.balances, ton: new Decimal((this._user.balances?.ton || 0)).plus(amount).toNumber() };
+        this._user.actions = { ...this._user.actions, add_ton_balance_at: created_at };
+
+        return true;
+    };
+
+    removeTONBalance(amount: number, created_at: Date) {
+        if (!this._user || (this._user.balances?.ton || 0) < amount) return false;
+
+        this._user.balances = { ...this._user.balances, ton: new Decimal((this._user.balances?.ton || 0)).minus(amount).toNumber() };
+        this._user.actions = { ...this._user.actions, remove_ton_balance_at: created_at };
+
+        return true;
+    };
+
     setInventoryItem(item_name: string, item_amount: number, created_at: Date) {
         if (!this._user) return false;
 

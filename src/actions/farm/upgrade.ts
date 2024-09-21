@@ -24,10 +24,14 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             };
 
             const new_level = user_data.farm_level + 1;
+            
+            const level_config = farm_config[new_level.toString()];
 
-            const upgarde_cost = farm_config[new_level.toString()].upgrade_cost;
+            const upgrade_type = level_config.upgrade_type;
 
-            if (user_data.balances.tpl < upgarde_cost) {
+            const upgarde_cost = level_config.upgrade_cost;
+            
+            if ((user_data.balances[upgrade_type] || 0) < upgarde_cost) {
                 replyMessage('receiver_message_data', { content: 'You do not have enough balance to upgrade the farm', type: 'error' });
                 return;
             };
@@ -46,7 +50,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const added = hook.addTPLFarmBalance(farm_amount_tpl, now_date);
 
-            const removed = hook.removeTPLBalance(upgarde_cost, now_date);
+            const removed = upgrade_type === 'tpl' ? hook.removeTPLBalance(upgarde_cost, now_date) : hook.removeTONBalance(upgarde_cost, now_date);
 
             const seted = hook.setFarmLevel(new_level, now_date);
 
@@ -57,11 +61,12 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                 tele_id: user.tele_id,
                 from_level: user_data.farm_level,
                 to_level: new_level,
-                tpl: upgarde_cost,
+                upgrade_type,
+                upgarde_cost,
                 created_at: now_date
             });
 
-            replyMessage(data.return_action, { upgarde_cost, new_level });
+            replyMessage(data.return_action, { upgrade_type, upgarde_cost, new_level });
         });
 
         if (exists === false) replyMessage('receiver_action_data', { action: 'reload' });
