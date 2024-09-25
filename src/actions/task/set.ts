@@ -15,12 +15,12 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             if (!task_config || !task_config[task_id]?.task_list[action]) return;
 
-            const is_action_done = user.isTaskAction(task_id, action);
+            const is_action_done = user.isTaskActionFinish(task_id, action);
 
             if (!is_action_done) {
                 const created_at = new Date();
 
-                user.setTaskAction(task_id, action, created_at);
+                user.setTaskActionFinish(task_id, action, created_at);
 
                 replyMessage(data.return_action, { created_at });
             };

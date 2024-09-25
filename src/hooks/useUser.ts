@@ -19,15 +19,28 @@ class User {
         return this._user;
     };
 
-    isTaskAction(task_id: string, action: string) {
+    isTaskActionFinish(task_id: string, action: string) {
         return this._user?.tasks?.[task_id]?.[action];
     };
 
-    setTaskAction(task_id: string, action: string, created_at: Date) {
+    setTaskActionFinish(task_id: string, action: string, created_at: Date) {
         if (!this._user) return false;
 
         this._user.tasks = { ...this._user.tasks, [task_id]: { ...this._user.tasks[task_id], [action]: { created_at } } };
         this._user.actions = { ...this._user.actions, set_task_at: created_at };
+
+        return true;
+    };
+
+    isTaskFinish(task_id: string) {
+        return !!this._user?.tasks?.[task_id]?._is_finish;
+    };
+
+    setTaskFinish(task_id: string, created_at: Date) {
+        if (!this._user) return false;
+
+        this._user.tasks = { ...this._user.tasks, [task_id]: { ...this._user.tasks[task_id], _is_finish: { created_at } } };
+        this._user.actions = { ...this._user.actions, set_task_finish_at: created_at };
 
         return true;
     };
