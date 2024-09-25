@@ -44,10 +44,10 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             try {
                 await session.withTransaction(async () => {
                     const update_todo_result = await todoCollection.updateOne(
-                        { todo_type: 'rest:onchain/borrow', tele_id: user.tele_id, status: 'pending' },
+                        { todo_type: 'rest:onchain/deposit', tele_id: user.tele_id, status: 'pending' },
                         {
                             $setOnInsert: {
-                                todo_type: 'rest:onchain/borrow',
+                                todo_type: 'rest:onchain/deposit',
                                 tele_id: user.tele_id,
                                 status: 'pending',
                                 onchain_amount,
