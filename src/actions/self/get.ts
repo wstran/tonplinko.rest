@@ -2,6 +2,8 @@ import redisWrapper from "../../libs/redisWrapper";
 import type { UserWithNonce } from "../../types";
 
 export default async (ws_user: UserWithNonce, data: Record<string, any>, replyMessage: (return_action: string, data: Record<string, any>) => void) => {
+    if (typeof data.projection !== 'string') return;
+    
     const user = await redisWrapper.get("users", ws_user.tele_id) as Record<string, any>;
 
     delete user._id;
