@@ -423,10 +423,14 @@ const server = Bun.serve({
 
             if (ws_data.clientIp && rate_limit_socket) return;
 
-
             if (!ws_data.isAuthenticated) return ws.close(4003, 'Unauthorized');
 
             const ws_message = message.toString();
+
+            if (ws_message === 'ping') {
+                ws.send('pong');
+                return;
+            };
 
             if (!ws_data.sharedKey && ws_message.startsWith('i:')) {
                 const client_public_key = ws_message.split('i:')[1];
