@@ -11,9 +11,10 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const task_config = await user.getTaskConfig();
 
             if (!task_config) return;
-
+            
+            
             const is_task_done = Object.keys(task_config[task_id]?.task_list).findIndex((action) => !user.isTaskActionFinish(task_id, action)) === -1;
-
+            
             if (!is_task_done) {
                 replyMessage('receiver_message_data', { content: 'You have not completed the task', type: 'error' });
                 return;
@@ -26,12 +27,14 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             const created_at = new Date();
 
-            for (const [reward_name, reward_data] of task_config[task_id].task_rewards) {
+            for (const reward_name in task_config[task_id].task_rewards) {
+                const reward_data = task_config[task_id].task_rewards[reward_name];
+
                 if (reward_data.type === "token") {
                     if (reward_name === 'ton') user.addTONBalance(reward_data.amount, created_at);
                     if (reward_name === 'tpl') user.addTPLBalance(reward_data.amount, created_at);
                 };
-            };
+            }
 
             user.setTaskFinish(task_id, created_at);
 
