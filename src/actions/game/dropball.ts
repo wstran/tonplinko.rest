@@ -20,35 +20,11 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
                 return;
             };
 
+            const { safe, risky } = config_rate_payouts[data.row][data.risk_level];
+
             const percent = generateRandomInt(0, 100);
-            let bin = 8;
 
-            const successRate = 97;
-
-            const bins = {
-                HIGH: {
-                    safe: generateRandomInt(5, 11),
-                    risky: generateRandomInt(1, 15)
-                },
-                MEDIUM: {
-                    safe: generateRandomInt(6, 9),
-                    risky: generateRandomInt(1, 15)
-                },
-                LOW: {
-                    safe: generateRandomInt(7, 10),
-                    risky: generateRandomInt(1, 15)
-                }
-            };
-
-            if (data.risk_level === 'HIGH') {
-                bin = percent < successRate ? bins.HIGH.safe : bins.HIGH.risky;
-            } else if (data.risk_level === 'MEDIUM') {
-                bin = percent < successRate ? bins.MEDIUM.safe : bins.MEDIUM.risky;
-            } else if (data.risk_level === 'LOW') {
-                bin = percent < successRate ? bins.LOW.safe : bins.LOW.risky;
-            }
-
-            console.log(`Bin chosen: ${bin}`);
+            const bin = generateRandomInt(...(percent < 97 ? safe : risky));
 
             const now_date = new Date();
 
@@ -76,3 +52,139 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
         console.error(error);
     };
 }
+
+const config_rate_payouts: {
+    [row: number]: {
+        [risk_level: string]: {
+            safe: [number, number],
+            risky: [number, number]
+        }
+    }
+} = {
+    [8]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [9]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [10]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [11]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [12]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [13]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [14]: {
+        HIGHT: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [15]: {
+        HIGH: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+    [16]: {
+        HIGH: {
+            safe: [5, 11],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [6, 9],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [7, 10],
+            risky: [1, 15]
+        }
+    },
+};
