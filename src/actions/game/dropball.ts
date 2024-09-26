@@ -76,8 +76,8 @@ const config_rate_payouts: {
     },
     9: {
         HIGH: {
-            safe: [3, 7],
-            risky: [1, 8]
+            safe: [3, 6],
+            risky: [2, 7]
         },
         MEDIUM: {
             safe: [4, 7],
@@ -85,7 +85,7 @@ const config_rate_payouts: {
         },
         LOW: {
             safe: [5, 8],
-            risky: [2, 8]
+            risky: [1, 8]
         }
     },
     10: {
@@ -160,30 +160,30 @@ const config_rate_payouts: {
     },
     15: {
         HIGH: {
-            safe: [9, 13],
-            risky: [1, 14]
+            safe: [7, 8],
+            risky: [3, 12]
         },
         MEDIUM: {
-            safe: [10, 13],
-            risky: [1, 14]
+            safe: [6, 9],
+            risky: [2, 13]
         },
         LOW: {
-            safe: [11, 14],
-            risky: [2, 14]
+            safe: [5, 10],
+            risky: [1, 14]
         }
     },
     16: {
         HIGH: {
-            safe: [10, 14],
-            risky: [1, 15]
+            safe: [5, 11],
+            risky: [3, 13]
         },
         MEDIUM: {
-            safe: [11, 14],
-            risky: [1, 15]
+            safe: [6, 9],
+            risky: [2, 14]
         },
         LOW: {
-            safe: [12, 15],
-            risky: [2, 15]
+            safe: [7, 10],
+            risky: [1, 15]
         }
     }
 };
