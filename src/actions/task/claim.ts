@@ -35,7 +35,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
             user.setTaskFinish(task_id, created_at);
 
-            replyMessage(data.return_action, { created_at });
+            replyMessage(data.return_action, { task_id, created_at });
         });
 
         if (exists === false) replyMessage('receiver_action_data', { action: 'reload' });

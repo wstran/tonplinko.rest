@@ -472,7 +472,7 @@ const server = Bun.serve({
 
                         let encrypted = [cipher.update(JSON.stringify({ return_action, data }), 'utf8', 'base64'), cipher.final('base64')].join('');
 
-                        ws.send(`m:${signature}:${JSON.stringify(encrypted)}`);
+                        ws.send(`m:${signature}:${encrypted}`);
                     });
                 } catch (error) {
                     console.error(error);

@@ -22,7 +22,7 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
 
                 user.setTaskActionFinish(task_id, action, created_at);
 
-                replyMessage(data.return_action, { created_at });
+                replyMessage(data.return_action, { task_id, action, created_at });
             };
         });
 
