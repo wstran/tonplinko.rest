@@ -21,16 +21,36 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             };
 
             const percent = generateRandomInt(0, 100);
-
             let bin = 8;
 
-            if (data.risk_level === 'HIGH') {
-                bin = percent > 1 ? generateRandomInt(5, 11) : generateRandomInt(1, 15);
-            } else if (data.risk_level === 'MEDIUM') {
-                bin = percent > 1 ? generateRandomInt(6, 9) : generateRandomInt(1, 15);
-            } else if (data.risk_level === 'LOW') {
-                bin = percent > 1 ? generateRandomInt(7, 10) : generateRandomInt(1, 15);
+            // Tỷ lệ thành công là 97%
+            const successRate = 97;
+
+            // Giá trị bin cho các trường hợp thành công và rủi ro thấp
+            const bins = {
+                HIGH: {
+                    safe: generateRandomInt(5, 11),
+                    risky: generateRandomInt(1, 15)
+                },
+                MEDIUM: {
+                    safe: generateRandomInt(6, 9),
+                    risky: generateRandomInt(1, 15)
+                },
+                LOW: {
+                    safe: generateRandomInt(7, 10),
+                    risky: generateRandomInt(1, 15)
+                }
             };
+
+            if (data.risk_level === 'HIGH') {
+                bin = percent < successRate ? bins.HIGH.safe : bins.HIGH.risky;
+            } else if (data.risk_level === 'MEDIUM') {
+                bin = percent < successRate ? bins.MEDIUM.safe : bins.MEDIUM.risky;
+            } else if (data.risk_level === 'LOW') {
+                bin = percent < successRate ? bins.LOW.safe : bins.LOW.risky;
+            }
+
+            console.log(`Bin chosen: ${bin}`);
 
             const now_date = new Date();
 
