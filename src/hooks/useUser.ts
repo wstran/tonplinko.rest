@@ -369,7 +369,11 @@ export const useUser = async (tele_id: string, handler: (user: User) => Promise<
 
         await user.init();
 
-        await handler(user);
+        try {
+            await handler(user);
+        } catch(error) {
+            console.error(error);
+        };
 
         await user.save();
 
