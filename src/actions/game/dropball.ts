@@ -23,10 +23,8 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
             const percent = generateRandomInt(0, 100);
             let bin = 8;
 
-            // Tỷ lệ thành công là 97%
             const successRate = 97;
 
-            // Giá trị bin cho các trường hợp thành công và rủi ro thấp
             const bins = {
                 HIGH: {
                     safe: generateRandomInt(5, 11),
