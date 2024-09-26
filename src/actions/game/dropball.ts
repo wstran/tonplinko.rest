@@ -52,7 +52,6 @@ export default async (user: UserWithNonce, data: Record<string, any>, replyMessa
         console.error(error);
     };
 }
-
 const config_rate_payouts: {
     [row: number]: {
         [risk_level: string]: {
@@ -61,130 +60,130 @@ const config_rate_payouts: {
         }
     }
 } = {
-    [8]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [9]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [10]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [11]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [12]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [13]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [14]: {
-        HIGHT: {
-            safe: [5, 11],
-            risky: [1, 15]
-        },
-        MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
-        },
-        LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
-        }
-    },
-    [15]: {
+    8: {
         HIGH: {
-            safe: [5, 11],
-            risky: [1, 15]
+            safe: [2, 6],
+            risky: [1, 7]
         },
         MEDIUM: {
-            safe: [6, 9],
-            risky: [1, 15]
+            safe: [3, 5],
+            risky: [1, 7]
         },
         LOW: {
-            safe: [7, 10],
-            risky: [1, 15]
+            safe: [4, 6],
+            risky: [1, 7]
         }
     },
-    [16]: {
+    9: {
         HIGH: {
-            safe: [5, 11],
-            risky: [1, 15]
+            safe: [3, 7],
+            risky: [1, 8]
+        },
+        MEDIUM: {
+            safe: [4, 7],
+            risky: [1, 8]
+        },
+        LOW: {
+            safe: [5, 8],
+            risky: [2, 8]
+        }
+    },
+    10: {
+        HIGH: {
+            safe: [4, 8],
+            risky: [1, 9]
+        },
+        MEDIUM: {
+            safe: [5, 8],
+            risky: [1, 9]
+        },
+        LOW: {
+            safe: [6, 9],
+            risky: [2, 9]
+        }
+    },
+    11: {
+        HIGH: {
+            safe: [5, 9],
+            risky: [1, 10]
         },
         MEDIUM: {
             safe: [6, 9],
-            risky: [1, 15]
+            risky: [1, 10]
         },
         LOW: {
             safe: [7, 10],
-            risky: [1, 15]
+            risky: [2, 10]
         }
     },
+    12: {
+        HIGH: {
+            safe: [6, 10],
+            risky: [1, 11]
+        },
+        MEDIUM: {
+            safe: [7, 10],
+            risky: [1, 11]
+        },
+        LOW: {
+            safe: [8, 11],
+            risky: [2, 11]
+        }
+    },
+    13: {
+        HIGH: {
+            safe: [7, 11],
+            risky: [1, 12]
+        },
+        MEDIUM: {
+            safe: [8, 11],
+            risky: [1, 12]
+        },
+        LOW: {
+            safe: [9, 12],
+            risky: [2, 12]
+        }
+    },
+    14: {
+        HIGH: {
+            safe: [8, 12],
+            risky: [1, 13]
+        },
+        MEDIUM: {
+            safe: [9, 12],
+            risky: [1, 13]
+        },
+        LOW: {
+            safe: [10, 13],
+            risky: [2, 13]
+        }
+    },
+    15: {
+        HIGH: {
+            safe: [9, 13],
+            risky: [1, 14]
+        },
+        MEDIUM: {
+            safe: [10, 13],
+            risky: [1, 14]
+        },
+        LOW: {
+            safe: [11, 14],
+            risky: [2, 14]
+        }
+    },
+    16: {
+        HIGH: {
+            safe: [10, 14],
+            risky: [1, 15]
+        },
+        MEDIUM: {
+            safe: [11, 14],
+            risky: [1, 15]
+        },
+        LOW: {
+            safe: [12, 15],
+            risky: [2, 15]
+        }
+    }
 };
