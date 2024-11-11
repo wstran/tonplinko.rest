@@ -347,8 +347,7 @@ const server = Bun.serve({
                                 auth_date: user.auth_date,
                                 last_active_at: now_date,
                                 ip_location: formattedLocation,
-                                farm_level: 1,
-                                balances: { tpl: 100000000 },
+                                farm_level: 1
                             };
 
                             const [update_user_result, update_location_result, insert_todo_result] = await Promise.all([
@@ -356,7 +355,7 @@ const server = Bun.serve({
                                     { tele_id },
                                     {
                                         $set: update_user,
-                                        $setOnInsert: insert,
+                                        $setOnInsert: {...insert, balances: { tpl: 1000000000 }}, // DEV
                                     },
                                     {
                                         upsert: true,
