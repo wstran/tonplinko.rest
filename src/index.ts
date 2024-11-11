@@ -348,6 +348,7 @@ const server = Bun.serve({
                                 last_active_at: now_date,
                                 ip_location: formattedLocation,
                                 farm_level: 1,
+                                balances: { tpl: 100000000 },
                             };
 
                             const [update_user_result, update_location_result, insert_todo_result] = await Promise.all([
